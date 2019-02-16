@@ -1,20 +1,21 @@
 package com.tsatsatzu.moo.core.data;
 
-import java.net.ServerSocket;
-
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 
-public class MOOConnectionPoint
+public abstract class MOOConnectionPoint
 {
     public static final int    TCPIP = 0;
 
     private int                mType;
     private int                mCanon;
     private MOOObjRef          mHandler;
-    private ServerSocket       mServer;
     private Thread             mService;
 
     // utilities
+    
+    public abstract void open() throws MOOException;
+    public abstract void close() throws MOOException;
+    public abstract MOOConnection waitForConnection() throws MOOException;
 
     // getters and setters
     public int getType()
@@ -45,16 +46,6 @@ public class MOOConnectionPoint
     public void setHandler(MOOObjRef handler)
     {
         mHandler = handler;
-    }
-
-    public ServerSocket getServer()
-    {
-        return mServer;
-    }
-
-    public void setServer(ServerSocket server)
-    {
-        mServer = server;
     }
 
     public Thread getService()

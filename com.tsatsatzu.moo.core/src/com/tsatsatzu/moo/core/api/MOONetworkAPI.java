@@ -11,8 +11,6 @@ import com.tsatsatzu.moo.core.data.val.MOOString;
 import com.tsatsatzu.moo.core.logic.MOOConnectionLogic;
 import com.tsatsatzu.moo.core.logic.MOOProgrammerLogic;
 
-import jo.util.utils.obj.IntegerUtils;
-
 public class MOONetworkAPI
 {
     /*
@@ -301,8 +299,7 @@ public class MOONetworkAPI
         MOOObject programmer = MOOProgrammerLogic.getProgrammer();
         if (!programmer.isWizard())
             throw new MOOException("Only a wizard can listen");
-        int port = IntegerUtils.parseInt(point.getValue());
-        int canon = MOOConnectionLogic.listenTCPIP(object, port);
+        int canon = MOOConnectionLogic.listen(object, point.getValue());
         return new MOONumber(canon);
     }
     /*
@@ -313,7 +310,7 @@ public class MOONetworkAPI
     */
     public static void unlisten(MOOValue canon) throws MOOException
     {
-        MOOConnectionLogic.terminateTCPIP(((MOONumber)canon).getValue().intValue());
+        MOOConnectionLogic.terminate(((MOONumber)canon).getValue().intValue());
     }
     /*
     Function: list listeners ()

@@ -1,20 +1,15 @@
 package com.tsatsatzu.moo.core.logic;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import com.tsatsatzu.moo.core.api.MOOObjectAPI;
+import com.tsatsatzu.moo.core.data.IConnectionHandler;
 import com.tsatsatzu.moo.core.data.MOOCommand;
 import com.tsatsatzu.moo.core.data.MOOConnection;
 import com.tsatsatzu.moo.core.data.MOOConnectionPoint;
@@ -29,46 +24,76 @@ public class MOOConnectionLogic
     private static Map<Object,MOOConnectionPoint> mPoints = new HashMap<>();
     private static int mNextConnectionID = -100;
     private static List<MOOConnection> mConnections = new ArrayList<>();
+    private static List<IConnectionHandler> mHandlers = new ArrayList<>();
     
-    public static int listenTCPIP(MOOObjRef handler, int port) throws MOOException
+    public static void initialize()
+    {
+        for (Object k : System.getProperties().keySet())
+        {
+            String key = k.toString();
+            if (key.startsWith("moo.connection."))
+                try
+                {
+                    String hClassName = System.getProperty(key);
+                    Class<?> hClass = Class.forName(hClassName);
+                    IConnectionHandler h = (IConnectionHandler)hClass.newInstance();
+                    mHandlers.add(h);
+                }
+                catch (Exception e)
+                {
+                    MOOOpsLogic.log("Failure to create connection point handler '"+key+"'", e);
+                }
+        }
+        if (mHandlers.size() == 0)
+            mHandlers.add(new TCPIPConnectionHandler());
+    }
+    
+    public static void shutdown()
+    {
+        for (Iterator<MOOConnection> i = mConnections.iterator(); i.hasNext(); )
+        {
+            try
+            {
+                i.next().close();
+            }
+            catch (MOOException e)
+            {
+                MOOOpsLogic.log(e);
+            }
+            i.remove();
+        }
+    }
+    
+    public static int listen(MOOObjRef handler, String spec) throws MOOException
     {
         for (MOOConnectionPoint p : mPoints.values())
             if (p.getHandler().equals(handler))
                 throw new MOOException("Already listing for this handler");
-        final MOOConnectionPoint conn = new MOOConnectionPoint();
-        conn.setType(MOOConnectionPoint.TCPIP);
-        conn.setCanon(port);
+        IConnectionHandler connHandler = null;
+        for (IConnectionHandler h : mHandlers)
+            if (h.isHandlerFor(spec))
+            {
+                connHandler = h;
+                break;
+            }
+        if (connHandler == null)
+            throw new MOOException("No connection handler for '"+spec+"'");
+        final MOOConnectionPoint conn = connHandler.setupPoint(spec);
         conn.setHandler(handler);
-        ServerSocket server;
-        try
-        {
-            server = new ServerSocket(port);
-        }
-        catch (IOException e)
-        {
-            throw new MOOException("Error listening on port "+port, e);
-        }
-        Thread t = new Thread("Server Listener for "+port) { public void run() { doListen(conn); } };
-        conn.setServer(server);
-        conn.setService(t);
         mPoints.put(conn.getCanon(), conn);
+        conn.open();
+        Thread t = new Thread("Server Listener for "+conn.getCanon()) { public void run() { doListen(conn); } };
         t.start();
+        conn.setService(t);
         return conn.getCanon();
     }
 
-    public static void terminateTCPIP(int value) throws MOOException
+    public static void terminate(int value) throws MOOException
     {
         MOOConnectionPoint conn = mPoints.get(value);
         if (conn == null)
             return;
-        try
-        {
-            conn.getServer().close();
-        }
-        catch (IOException e)
-        {
-            throw new MOOException(e);
-        }     
+        conn.close();
     }
     
     private static void doListen(MOOConnectionPoint point)
@@ -78,10 +103,9 @@ public class MOOConnectionLogic
         {
             try
             {
-                Socket sock = point.getServer().accept();
-                final MOOConnection conn = new MOOConnection();
-                conn.setType(MOOConnection.TCPIP);
-                conn.setConnection(sock);
+                final MOOConnection conn = point.waitForConnection();
+                if (conn == null)
+                    break;
                 conn.setPlayer(new MOOObjRef(mNextConnectionID--));
                 conn.setPoint(point);
                 Thread t = new Thread("Connection listener for "+point.getCanon()+" #"+conn.getPlayer().getValue())
@@ -90,22 +114,20 @@ public class MOOConnectionLogic
                 mConnections.add(conn);
                 t.start();
             }
-            catch (IOException e)
+            catch (MOOException e)
             {
-                if (!(e instanceof SocketException))
-                    MOOOpsLogic.log(e);
+                MOOOpsLogic.log(e);
                 break;
             }
         }
         MOOOpsLogic.log("Done listening to "+point.getCanon()+".");
         try
         {
-            point.getServer().close();
+            point.close();
         }
-        catch (IOException e)
+        catch (MOOException e)
         {
-            if (!(e instanceof SocketException))
-                MOOOpsLogic.log(e);
+            MOOOpsLogic.log(e);
         }
         mPoints.remove(point.getCanon());
     }
@@ -113,17 +135,13 @@ public class MOOConnectionLogic
     private static void doConnection(MOOConnection conn)
     {
         MOOOpsLogic.log("New connection received.");
-        BufferedReader rdr;
         try
         {
-            rdr = new BufferedReader(new InputStreamReader(conn.getConnection().getInputStream()));
-            BufferedWriter wtr = new BufferedWriter(new OutputStreamWriter(conn.getConnection().getOutputStream()));
-            conn.setWriter(wtr);
             doLoginCommand(conn, "");
         }
-        catch (Exception e)
+        catch (MOOException | IOException e1)
         {
-            MOOOpsLogic.log("Error on connection", e);
+            MOOOpsLogic.log("Error initializing connection", e1);
             return;
         }
         String outOfBandPrefix = System.getProperty("moo.out-of-band.prefix", "#$#");
@@ -131,7 +149,7 @@ public class MOOConnectionLogic
         {
             try
             {
-                String inbuf = rdr.readLine();
+                String inbuf = conn.readLine();
                 if (inbuf == null)
                 {
                     MOOOpsLogic.log("End of input detected");
@@ -164,9 +182,9 @@ public class MOOConnectionLogic
         MOOOpsLogic.log("Closing connection.");
         try
         {
-            conn.getConnection().close();
+            conn.close();
         }
-        catch (IOException e)
+        catch (MOOException e)
         {
         }
         mConnections.remove(conn);
@@ -207,7 +225,7 @@ public class MOOConnectionLogic
                     for (MOOConnection c : mConnections)
                         if ((c != conn) && c.getPlayer().equals(player))
                         {
-                            c.getConnection().close();
+                            c.close();
                             cmd = "user_reconnected";
                             break;
                         }

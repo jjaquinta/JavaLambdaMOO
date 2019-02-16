@@ -6,7 +6,6 @@ import org.junit.Test;
 import com.tsatsatzu.moo.core.api.MOOMoveAPI;
 import com.tsatsatzu.moo.core.api.MOOObjectAPI;
 import com.tsatsatzu.moo.core.api.MOOVerbAPI;
-import com.tsatsatzu.moo.core.data.MOOObject;
 import com.tsatsatzu.moo.core.data.val.MOOList;
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.data.val.MOOString;

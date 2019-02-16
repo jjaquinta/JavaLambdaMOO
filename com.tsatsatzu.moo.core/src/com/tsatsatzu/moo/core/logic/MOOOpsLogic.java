@@ -34,6 +34,7 @@ public class MOOOpsLogic
             try
             {
                 MOODbLogic.initailize();
+                MOOConnectionLogic.initialize();
             }
             catch (MOOFatalException e)
             {
@@ -76,6 +77,7 @@ public class MOOOpsLogic
         {
             try
             {
+                MOOConnectionLogic.shutdown();
                 MOODbLogic.shutdown();
             }
             catch (MOOFatalException e)

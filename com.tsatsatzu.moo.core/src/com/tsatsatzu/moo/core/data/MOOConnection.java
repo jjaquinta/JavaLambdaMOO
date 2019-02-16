@@ -1,21 +1,15 @@
 package com.tsatsatzu.moo.core.data;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.net.Socket;
-
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 
-public class MOOConnection
+public abstract class MOOConnection
 {
     public static final int    TCPIP = 0;
 
     private int                mType;
     private MOOObjRef          mPlayer;
-    private Socket             mConnection;
     private Thread             mService;
     private MOOConnectionPoint mPoint;
-    private BufferedWriter     mWriter;
     private boolean            mProgramMode = false;
     private StringBuffer       mProgram = new StringBuffer();
     private String             mPrefix;
@@ -27,46 +21,11 @@ public class MOOConnection
         return mPlayer.getValue() >= 0;
     }
     
-    public void print(String msg) throws MOOException
-    {
-        try
-        {
-            if (msg != null)
-                mWriter.write(msg);
-            mWriter.flush();
-        }
-        catch (IOException e)
-        {
-            throw new MOOException("Error printing '"+msg+"' to connection", e);
-        }
-    }
-    
-    public void println(String msg) throws MOOException
-    {
-        try
-        {
-            if (msg != null)
-                mWriter.write(msg);
-            mWriter.newLine();
-            mWriter.flush();
-        }
-        catch (IOException e)
-        {
-            throw new MOOException("Error printing '"+msg+"' to connection", e);
-        }
-    }
-    
-    public void flush() throws MOOException
-    {
-        try
-        {
-            mWriter.flush();
-        }
-        catch (IOException e)
-        {
-            throw new MOOException("Error flushing connection", e);
-        }
-    }
+    public abstract void print(String msg) throws MOOException;
+    public abstract void println(String msg) throws MOOException;
+    public abstract void flush() throws MOOException;
+    public abstract String readLine() throws MOOException;
+    public abstract void close() throws MOOException;
 
     // getters and setters
     public int getType()
@@ -99,16 +58,6 @@ public class MOOConnection
         mPlayer = player;
     }
 
-    public Socket getConnection()
-    {
-        return mConnection;
-    }
-
-    public void setConnection(Socket connection)
-    {
-        mConnection = connection;
-    }
-
     public MOOConnectionPoint getPoint()
     {
         return mPoint;
@@ -117,16 +66,6 @@ public class MOOConnection
     public void setPoint(MOOConnectionPoint point)
     {
         mPoint = point;
-    }
-
-    public BufferedWriter getWriter()
-    {
-        return mWriter;
-    }
-
-    public void setWriter(BufferedWriter writer)
-    {
-        mWriter = writer;
     }
 
     public boolean isProgramMode()
