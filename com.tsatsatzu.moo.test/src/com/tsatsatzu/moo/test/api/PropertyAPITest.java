@@ -24,22 +24,22 @@ public class PropertyAPITest extends MinimalDBBase
         MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "properties('#0');");
         Assert.assertTrue("Script should return List", ret instanceof MOOList);
         MOOList props = (MOOList)ret;
-        Assert.assertEquals("Should be no defined properties", 0, props.getValue().size());
+        Assert.assertEquals("Should be no defined properties", 0, props.size());
     }
 
     @Test
     public void testPropertyInfo() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(2), new MOOString("temperature"), new MOONumber(32), info);
         MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "property_info('#2', 'temperature');");
         Assert.assertTrue("Script should return List", ret instanceof MOOList);
         info = (MOOList)ret;
-        Assert.assertEquals("Should be 3 infos", 2, info.getValue().size());
-        MOOValue owner = info.getValue().get(0);
-        MOOValue perms = info.getValue().get(1);
+        Assert.assertEquals("Should be 3 infos", 2, info.size());
+        MOOValue owner = info.get(0);
+        MOOValue perms = info.get(1);
         Assert.assertTrue("First info item should be Object", owner instanceof MOOObjRef);
         Assert.assertTrue("Second info item should be String", perms instanceof MOOString);
         Assert.assertEquals("Unexpected owner", 3, ((MOOObjRef)owner).getValue());
@@ -50,8 +50,8 @@ public class PropertyAPITest extends MinimalDBBase
     public void testSetPropertyInfo() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(2), new MOOString("temperature"), new MOONumber(32), info);
         MOOScriptLogic.executeScript(mProgrammer, "var info = []; info[0] = toobj('#0'); info[1] = 'rwc'; info[2] = 'wibble'; set_property_info('#2', 'temperature', info);");
         MOOObject obj = MOODbLogic.get(2);
@@ -84,8 +84,8 @@ public class PropertyAPITest extends MinimalDBBase
     public void testDeleteProperty() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(2), new MOOString("temperature"), new MOONumber(32), info);
         MOOScriptLogic.executeScript(mProgrammer, "delete_property('#2', 'temperature');");
         MOOObject obj = MOODbLogic.get(0);
@@ -97,8 +97,8 @@ public class PropertyAPITest extends MinimalDBBase
     public void testIsClearProperty() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(1), new MOOString("temperature"), new MOONumber(32), info);
         MOOValue ret1 = MOOScriptLogic.executeScript(mProgrammer, "is_clear_property('#1', 'temperature');");
         Assert.assertTrue("Script should return Number", ret1 instanceof MOONumber);
@@ -114,8 +114,8 @@ public class PropertyAPITest extends MinimalDBBase
     public void testClearProperty() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(1), new MOOString("temperature"), new MOONumber(32), info);
         MOOPropertyAPI.set_property(new MOOObjRef(2), new MOOString("temperature"), new MOONumber(16));
         MOOValue ret2 = MOOScriptLogic.executeScript(mProgrammer, "is_clear_property('#2', 'temperature');");
@@ -133,8 +133,8 @@ public class PropertyAPITest extends MinimalDBBase
     public void testSetProperty() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(1), new MOOString("temperature"), new MOONumber(32), info);
         MOOScriptLogic.executeScript(mProgrammer, "set_property('#2', 'temperature', 16);");
         MOOValue val = MOOPropertyAPI.get_property(new MOOObjRef(2), new MOOString("temperature"));
@@ -147,8 +147,8 @@ public class PropertyAPITest extends MinimalDBBase
     public void testGetProperty() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(1), new MOOString("temperature"), new MOONumber(32), info);
         MOOValue val = MOOScriptLogic.executeScript(mProgrammer, "get_property('#2', 'temperature');");
         Assert.assertTrue("Value should be Number", val instanceof MOONumber);
@@ -160,8 +160,8 @@ public class PropertyAPITest extends MinimalDBBase
     public void testInlineProperties() throws MOOException
     {
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rw"));
+        info.add(new MOOObjRef(3));
+        info.add("rw");
         MOOPropertyAPI.add_property(new MOOObjRef(1), new MOOString("temperature"), new MOONumber(32), info);
         MOOValue val1 = MOOScriptLogic.executeScript(mProgrammer, "toobj('#2').temperature;");
         Assert.assertTrue("Value should be Number", val1 instanceof MOONumber);

@@ -18,8 +18,8 @@ public class PlayerAPITest extends MinimalDBBase
         MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "players();");
         Assert.assertTrue("Script should return number", ret instanceof MOOList);
         MOOList players = (MOOList)ret;
-        Assert.assertEquals("Should be 1 player", 1, players.getValue().size());
-        MOOValue first = players.getValue().get(0);
+        Assert.assertEquals("Should be 1 player", 1, players.size());
+        MOOValue first = players.get(0);
         Assert.assertTrue("List should contain numbers", first instanceof MOONumber);
         Assert.assertEquals("Player should be #3", 3, ((MOONumber)first).getValue());
     }

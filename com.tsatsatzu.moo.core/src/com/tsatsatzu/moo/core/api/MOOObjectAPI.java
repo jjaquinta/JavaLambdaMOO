@@ -271,7 +271,7 @@ parent/child hierarchy. In this case, all formerly inherited properties on objec
             throw new MOOException("Invalid object '"+ref+"'");
         MOOList list = new MOOList();
         for (Integer ch : obj.getChildren())
-            list.getValue().add(new MOOObjRef(ch));
+            list.add(new MOOObjRef(ch));
         return list;
     }
     

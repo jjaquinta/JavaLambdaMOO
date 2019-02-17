@@ -45,7 +45,7 @@ public class MOOVerbAPI
             throw new MOOException("Invalid arg="+objRef);
         MOOList verbs = new MOOList();
         for (MOOVerb verb : obj.getVerbs())
-            verbs.getValue().add(new MOOString(verb.getName()));
+            verbs.add(verb.getName());
         return verbs;
     }
     
@@ -95,7 +95,7 @@ public class MOOVerbAPI
         if (!programmer.isWizard() && !verb.isRead() && !verb.getOwner().equals(programmer))
             throw new MOOException(programmer+" has no read permission on obj="+objRef);
         MOOList info = new MOOList();
-        info.getValue().add(verb.getOwner());
+        info.add(verb.getOwner());
         String perms = "";
         if (verb.isRead())
             perms += "r";
@@ -103,8 +103,8 @@ public class MOOVerbAPI
             perms += "w";
         if (verb.isExecute())
             perms += "x";
-        info.getValue().add(new MOOString(perms));
-        info.getValue().add(new MOOString(verb.getName()));        
+        info.add(perms);
+        info.add(verb.getName());        
         return info;
     }
     
@@ -159,9 +159,9 @@ public class MOOVerbAPI
         if (!programmer.isWizard() && !verb.isRead() && !verb.getOwner().equals(programmer))
             throw new MOOException(programmer+" has no read permission on obj="+objRef);
         MOOList args = new MOOList();
-        args.getValue().add(new MOOString(MOOVerb.objTypeToStr(verb.getDirectObjectType())));
-        args.getValue().add(new MOOString(MOOVerb.prepTypeToStr(verb.getPrepositionType())));
-        args.getValue().add(new MOOString(MOOVerb.objTypeToStr(verb.getIndirectObjectType())));
+        args.add(MOOVerb.objTypeToStr(verb.getDirectObjectType()));
+        args.add(MOOVerb.prepTypeToStr(verb.getPrepositionType()));
+        args.add(MOOVerb.objTypeToStr(verb.getIndirectObjectType()));
         return args;
     }
     
@@ -265,7 +265,7 @@ public class MOOVerbAPI
             throw new MOOException(programmer+" has no read permission on obj="+objRef);
         MOOList code = new MOOList();
         for (String line : verb.getScript())
-            code.getValue().add(new MOOString(line));
+            code.add(line);
         return code;
     }
     
@@ -280,15 +280,15 @@ public class MOOVerbAPI
             throw new MOOException(programmer+" has no write permission on obj="+objRef);
         List<String> script = new ArrayList<>();
         MOOList err = new MOOList();
-        for (int i = 0; i < code.getValue().size(); i++)
+        for (int i = 0; i < code.size(); i++)
         {
-            MOOValue line = code.getValue().get(i);
+            MOOValue line = code.get(i);
             if (line instanceof MOOString)
                 script.add(((MOOString)line).getValue());
             else
-                err.getValue().add(new MOOString("Line "+(i+1)+" is not a string"));
+                err.add(new MOOString("Line "+(i+1)+" is not a string"));
         }
-        if (err.getValue().size() == 0)
+        if (err.size() == 0)
             verb.setScript(script);        
         return err;
     }
@@ -296,20 +296,20 @@ public class MOOVerbAPI
     private static VerbInfo parseVerbInfo(MOOList info) throws MOOException
     {
         VerbInfo vi = new VerbInfo();
-        if (info.getValue().size() != 3)
-            throw new MOOException("Expected info to contain three elements, not "+info.getValue().size());
-        if (!(info.getValue().get(0) instanceof MOOObjRef))
-            throw new MOOException("Expected first elements of info to be an object, not "+info.getValue().get(0));
-        vi.ownerRef = (MOOObjRef)info.getValue().get(0);
+        if (info.size() != 3)
+            throw new MOOException("Expected info to contain three elements, not "+info.size());
+        if (!(info.get(0) instanceof MOOObjRef))
+            throw new MOOException("Expected first elements of info to be an object, not "+info.get(0));
+        vi.ownerRef = (MOOObjRef)info.get(0);
         MOOObject owner = MOODbLogic.get(vi.ownerRef);
         if (owner == null)
             throw new MOOException("Invalid owner specified "+vi.ownerRef);
-        if (!(info.getValue().get(1) instanceof MOOString))
-            throw new MOOException("Expected first elements of info to be an string, not "+info.getValue().get(1));
+        if (!(info.get(1) instanceof MOOString))
+            throw new MOOException("Expected first elements of info to be an string, not "+info.get(1));
         vi.read = false;
         vi.write = false;
         vi.execute = false;
-        for (char ch : ((MOOString)info.getValue().get(1)).getValue().toCharArray())
+        for (char ch : ((MOOString)info.get(1)).getValue().toCharArray())
             if (ch == 'r')
                 vi.read = true;
             else if (ch == 'w')
@@ -317,10 +317,10 @@ public class MOOVerbAPI
             else if (ch == 'x')
                 vi.execute = true;
             else
-                throw new MOOException("Unexpected permission parameter in "+info.getValue().get(1));
-        if (!(info.getValue().get(2) instanceof MOOString))
-            throw new MOOException("Expected first elements of info to be an string, not "+info.getValue().get(2));
-        vi.name = ((MOOString)info.getValue().get(2)).getValue();
+                throw new MOOException("Unexpected permission parameter in "+info.get(1));
+        if (!(info.get(2) instanceof MOOString))
+            throw new MOOException("Expected first elements of info to be an string, not "+info.get(2));
+        vi.name = ((MOOString)info.get(2)).getValue();
         if (vi.name.trim().length() == 0)
             throw new MOOException("Illegal verb name '"+vi.name+"'");
         return vi;
@@ -329,17 +329,17 @@ public class MOOVerbAPI
     private static VerbArgs parseVerbArgs(MOOList args) throws MOOException
     {
         VerbArgs va = new VerbArgs();
-        if (args.getValue().size() != 3)
-            throw new MOOException("Expected args to contain three elements, not "+args.getValue().size());
-        if (!(args.getValue().get(0) instanceof MOOString))
-            throw new MOOException("Expected first element of args to be an string, not "+args.getValue().get(0));
-        va.directObject = MOOVerb.objStrToType(((MOOString)args.getValue().get(0)).getValue());
-        if (!(args.getValue().get(1) instanceof MOOString))
-            throw new MOOException("Expected second element of args to be an string, not "+args.getValue().get(1));
-        va.prep = MOOVerb.prepStrToType(((MOOString)args.getValue().get(1)).getValue());
-        if (!(args.getValue().get(2) instanceof MOOString))
-            throw new MOOException("Expected firthirdst element of args to be an string, not "+args.getValue().get(2));
-        va.indirectObject = MOOVerb.objStrToType(((MOOString)args.getValue().get(2)).getValue());
+        if (args.size() != 3)
+            throw new MOOException("Expected args to contain three elements, not "+args.size());
+        if (!(args.get(0) instanceof MOOString))
+            throw new MOOException("Expected first element of args to be an string, not "+args.get(0));
+        va.directObject = MOOVerb.objStrToType(((MOOString)args.get(0)).getValue());
+        if (!(args.get(1) instanceof MOOString))
+            throw new MOOException("Expected second element of args to be an string, not "+args.get(1));
+        va.prep = MOOVerb.prepStrToType(((MOOString)args.get(1)).getValue());
+        if (!(args.get(2) instanceof MOOString))
+            throw new MOOException("Expected firthirdst element of args to be an string, not "+args.get(2));
+        va.indirectObject = MOOVerb.objStrToType(((MOOString)args.get(2)).getValue());
         return va;
     }
 }

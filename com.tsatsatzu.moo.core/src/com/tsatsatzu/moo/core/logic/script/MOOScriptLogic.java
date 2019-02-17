@@ -78,7 +78,7 @@ public class MOOScriptLogic
     {
         MOOList args = new MOOList();
         for (String arg : cmd.getArgs())
-            args.getValue().add(new MOOString(arg));
+            args.add(arg);
         MOOObjRef player = cmd.getPlayer().toRef();
         String script = cmd.getCmdVerb().getScriptText();
         Map<String,Object> props = new HashMap<>();

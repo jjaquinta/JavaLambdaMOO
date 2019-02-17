@@ -29,7 +29,7 @@ public class MOOPropertyAPI
         MOOList list = new MOOList();
         for (MOOProperty prop : obj.getProperties().values())
             if (prop.isDefinition())
-                list.getValue().add(new MOOString(prop.getName()));
+                list.add(prop.getName());
         return list;
     }
     
@@ -59,7 +59,7 @@ public class MOOPropertyAPI
         if (!programmer.isWizard() && !prop.isRead() && !prop.getOwner().equals(programmer))
             throw new MOOException(programmer+" has no read permission prop="+propName+" on obj="+objref);
         MOOList info = new MOOList();
-        info.getValue().add(prop.getOwner());
+        info.add(prop.getOwner());
         String perms = "";
         if (prop.isRead())
             perms += "r";
@@ -67,7 +67,7 @@ public class MOOPropertyAPI
             perms += "w";
         if (prop.isChange())
             perms += "c";
-        info.getValue().add(new MOOString(perms));
+        info.add(perms);
         return info;
     }
     
@@ -85,23 +85,23 @@ public class MOOPropertyAPI
         if (!programmer.isWizard() && !prop.isWrite() && !prop.getOwner().equals(programmer))
             throw new MOOException(programmer+" has no write permission prop="+propName+" on obj="+objref);
         MOOObject newOwner = null;
-        if (info.getValue().size() > 0)
+        if (info.size() > 0)
         {
-            if (!(info.getValue().get(0) instanceof MOOObjRef))
-                throw new MOOException("Expected object value for first element in info, not "+info.getValue().get(0));
-            MOOObjRef newOwnerRef = (MOOObjRef)info.getValue().get(0);
+            if (!(info.get(0) instanceof MOOObjRef))
+                throw new MOOException("Expected object value for first element in info, not "+info.get(0));
+            MOOObjRef newOwnerRef = (MOOObjRef)info.get(0);
             newOwner = MOODbLogic.get(newOwnerRef);
             if (newOwner == null)
-                throw new MOOException("Object value for new owner element in info invalid "+info.getValue().get(0));
+                throw new MOOException("Object value for new owner element in info invalid "+info.get(0));
         }
         boolean read = false;
         boolean write = false;
         boolean change = false;
-        if (info.getValue().size() > 1)
+        if (info.size() > 1)
         {
-            if (!(info.getValue().get(1) instanceof MOOString))
-                throw new MOOException("Expected string value for second element in info, not "+info.getValue().get(1));
-            MOOString propPerms = (MOOString)info.getValue().get(1);
+            if (!(info.get(1) instanceof MOOString))
+                throw new MOOException("Expected string value for second element in info, not "+info.get(1));
+            MOOString propPerms = (MOOString)info.get(1);
             for (char ch : propPerms.getValue().toCharArray())
                 if (ch == 'r')
                     read = true;
@@ -113,11 +113,11 @@ public class MOOPropertyAPI
                     throw new MOOException("Unexpected values '"+ch+"' in permission string '"+propPerms+"'");
         }
         String newName = null;
-        if (info.getValue().size() > 2)
+        if (info.size() > 2)
         {
-            if (!(info.getValue().get(2) instanceof MOOString))
-                throw new MOOException("Expected string value for third element in info, not "+info.getValue().get(2));
-            newName = ((MOOString)info.getValue().get(2)).getValue();
+            if (!(info.get(2) instanceof MOOString))
+                throw new MOOException("Expected string value for third element in info, not "+info.get(2));
+            newName = ((MOOString)info.get(2)).getValue();
             if (doesPropExist(obj, newName))
                 throw new MOOException("New property name '"+newName+"' exists on object or descendent");
         }
@@ -172,22 +172,22 @@ public class MOOPropertyAPI
         if (obj == null)
             throw new MOOException("Invalid arg="+objRef);
         MOOObject newOwner = null;
-        if (info.getValue().size() == 0)
+        if (info.size() == 0)
             throw new MOOException("Expected object value for first element in info, none present");
-        if (!(info.getValue().get(0) instanceof MOOObjRef))
-            throw new MOOException("Expected object value for first element in info, not "+info.getValue().get(0));
-        MOOObjRef newOwnerRef = (MOOObjRef)info.getValue().get(0);
+        if (!(info.get(0) instanceof MOOObjRef))
+            throw new MOOException("Expected object value for first element in info, not "+info.get(0));
+        MOOObjRef newOwnerRef = (MOOObjRef)info.get(0);
         newOwner = MOODbLogic.get(newOwnerRef);
         if (newOwner == null)
-            throw new MOOException("Object value for new owner element in info invalid "+info.getValue().get(0));
+            throw new MOOException("Object value for new owner element in info invalid "+info.get(0));
         boolean read = false;
         boolean write = false;
         boolean change = false;
-        if (info.getValue().size() == 1)
+        if (info.size() == 1)
             throw new MOOException("Expected string value for second element in info, none present");
-        if (!(info.getValue().get(1) instanceof MOOString))
-            throw new MOOException("Expected string value for second element in info, not "+info.getValue().get(1));
-        MOOString propPerms = (MOOString)info.getValue().get(1);
+        if (!(info.get(1) instanceof MOOString))
+            throw new MOOException("Expected string value for second element in info, not "+info.get(1));
+        MOOString propPerms = (MOOString)info.get(1);
         for (char ch : propPerms.getValue().toCharArray())
             if (ch == 'r')
                 read = true;

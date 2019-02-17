@@ -28,16 +28,16 @@ public class ConnectionTests extends MinimalTelnetBase
         MOOString name = new MOOString("huh");
         MOOObjRef room = new MOOObjRef(2);
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rwx"));
-        info.getValue().add(name);
+        info.add(new MOOObjRef(3));
+        info.add("rwx");
+        info.add(name);
         MOOList args = new MOOList();
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
+        args.add("none");
+        args.add("none");
+        args.add("none");
         MOOVerbAPI.add_verb(room, info, args);
         MOOList code = new MOOList();
-        code.getValue().add(new MOOString("notify(player, \"WTF?\\n\", false);"));
+        code.add("notify(player, \"WTF?\\n\", false);");
         MOOVerbAPI.set_verb_code(room, name, code);
 
         connect();
@@ -52,16 +52,16 @@ public class ConnectionTests extends MinimalTelnetBase
         MOOString name = new MOOString("wibble");
         MOOObjRef obj = new MOOObjRef(3);
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rwx"));
-        info.getValue().add(name);
+        info.add(new MOOObjRef(3));
+        info.add("rwx");
+        info.add(name);
         MOOList args = new MOOList();
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
+        args.add("none");
+        args.add("none");
+        args.add("none");
         MOOVerbAPI.add_verb(obj, info, args);
         MOOList code = new MOOList();
-        code.getValue().add(new MOOString("notify(player, \"wobble\\n\", false);"));
+        code.add("notify(player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(obj, name, code);
 
         connect();
@@ -76,16 +76,16 @@ public class ConnectionTests extends MinimalTelnetBase
         MOOString name = new MOOString("wibble");
         MOOObjRef obj = new MOOObjRef(2);
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rwx"));
-        info.getValue().add(name);
+        info.add(new MOOObjRef(3));
+        info.add("rwx");
+        info.add(name);
         MOOList args = new MOOList();
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
+        args.add("none");
+        args.add("none");
+        args.add("none");
         MOOVerbAPI.add_verb(obj, info, args);
         MOOList code = new MOOList();
-        code.getValue().add(new MOOString("notify(player, \"wobble\\n\", false);"));
+        code.add("notify(player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(obj, name, code);
 
         connect();
@@ -100,16 +100,16 @@ public class ConnectionTests extends MinimalTelnetBase
         MOOObjRef room = new MOOObjRef(2);
         MOOString name1 = new MOOString("accept");
         MOOList info1 = new MOOList();
-        info1.getValue().add(new MOOObjRef(3));
-        info1.getValue().add(new MOOString("rwx"));
-        info1.getValue().add(name1);
+        info1.add(new MOOObjRef(3));
+        info1.add("rwx");
+        info1.add(name1);
         MOOList args1 = new MOOList();
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
+        args1.add("none");
+        args1.add("none");
+        args1.add("none");
         MOOVerbAPI.add_verb(room, info1, args1);
         MOOList code1 = new MOOList();
-        code1.getValue().add(new MOOString("true"));
+        code1.add("true");
         MOOVerbAPI.set_verb_code(room, name1, code1);
 
         MOOObjRef thing = MOOObjectAPI.create(new MOOObjRef(1), mProgrammer);
@@ -118,16 +118,16 @@ public class ConnectionTests extends MinimalTelnetBase
         
         MOOString name2 = new MOOString("wibble");
         MOOList info2 = new MOOList();
-        info2.getValue().add(new MOOObjRef(3));
-        info2.getValue().add(new MOOString("rwx"));
-        info2.getValue().add(name2);
+        info2.add(new MOOObjRef(3));
+        info2.add("rwx");
+        info2.add(name2);
         MOOList args2 = new MOOList();
-        args2.getValue().add(new MOOString("this"));
-        args2.getValue().add(new MOOString("none"));
-        args2.getValue().add(new MOOString("none"));
+        args2.add("this");
+        args2.add("none");
+        args2.add("none");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.getValue().add(new MOOString("notify(player, \"wobble\\n\", false);"));
+        code2.add("notify(player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();
@@ -141,16 +141,16 @@ public class ConnectionTests extends MinimalTelnetBase
     {
         MOOString name1 = new MOOString("accept");
         MOOList info1 = new MOOList();
-        info1.getValue().add(new MOOObjRef(3));
-        info1.getValue().add(new MOOString("rwx"));
-        info1.getValue().add(name1);
+        info1.add(new MOOObjRef(3));
+        info1.add("rwx");
+        info1.add(name1);
         MOOList args1 = new MOOList();
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
+        args1.add("none");
+        args1.add("none");
+        args1.add("none");
         MOOVerbAPI.add_verb(mProgrammer, info1, args1);
         MOOList code1 = new MOOList();
-        code1.getValue().add(new MOOString("true"));
+        code1.add("true");
         MOOVerbAPI.set_verb_code(mProgrammer, name1, code1);
 
         MOOObjRef thing = MOOObjectAPI.create(new MOOObjRef(1), mProgrammer);
@@ -159,16 +159,16 @@ public class ConnectionTests extends MinimalTelnetBase
         
         MOOString name2 = new MOOString("wibble");
         MOOList info2 = new MOOList();
-        info2.getValue().add(new MOOObjRef(3));
-        info2.getValue().add(new MOOString("rwx"));
-        info2.getValue().add(name2);
+        info2.add(new MOOObjRef(3));
+        info2.add("rwx");
+        info2.add(name2);
         MOOList args2 = new MOOList();
-        args2.getValue().add(new MOOString("this"));
-        args2.getValue().add(new MOOString("none"));
-        args2.getValue().add(new MOOString("none"));
+        args2.add("this");
+        args2.add("none");
+        args2.add("none");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.getValue().add(new MOOString("notify(player, \"wobble\\n\", false);"));
+        code2.add("notify(player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();
@@ -183,16 +183,16 @@ public class ConnectionTests extends MinimalTelnetBase
         MOOObjRef room = new MOOObjRef(2);
         MOOString name1 = new MOOString("accept");
         MOOList info1 = new MOOList();
-        info1.getValue().add(new MOOObjRef(3));
-        info1.getValue().add(new MOOString("rwx"));
-        info1.getValue().add(name1);
+        info1.add(new MOOObjRef(3));
+        info1.add("rwx");
+        info1.add(name1);
         MOOList args1 = new MOOList();
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
+        args1.add("none");
+        args1.add("none");
+        args1.add("none");
         MOOVerbAPI.add_verb(room, info1, args1);
         MOOList code1 = new MOOList();
-        code1.getValue().add(new MOOString("true"));
+        code1.add("true");
         MOOVerbAPI.set_verb_code(room, name1, code1);
 
         MOOObjRef thing = MOOObjectAPI.create(new MOOObjRef(1), mProgrammer);
@@ -201,16 +201,16 @@ public class ConnectionTests extends MinimalTelnetBase
         
         MOOString name2 = new MOOString("wibble");
         MOOList info2 = new MOOList();
-        info2.getValue().add(new MOOObjRef(3));
-        info2.getValue().add(new MOOString("rwx"));
-        info2.getValue().add(name2);
+        info2.add(new MOOObjRef(3));
+        info2.add("rwx");
+        info2.add(name2);
         MOOList args2 = new MOOList();
-        args2.getValue().add(new MOOString("none"));
-        args2.getValue().add(new MOOString("over"));
-        args2.getValue().add(new MOOString("this"));
+        args2.add("none");
+        args2.add("over");
+        args2.add("this");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.getValue().add(new MOOString("notify(player, \"wobble\\n\", false);"));
+        code2.add("notify(player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();
@@ -224,16 +224,16 @@ public class ConnectionTests extends MinimalTelnetBase
     {
         MOOString name1 = new MOOString("accept");
         MOOList info1 = new MOOList();
-        info1.getValue().add(new MOOObjRef(3));
-        info1.getValue().add(new MOOString("rwx"));
-        info1.getValue().add(name1);
+        info1.add(new MOOObjRef(3));
+        info1.add("rwx");
+        info1.add(name1);
         MOOList args1 = new MOOList();
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
-        args1.getValue().add(new MOOString("none"));
+        args1.add("none");
+        args1.add("none");
+        args1.add("none");
         MOOVerbAPI.add_verb(mProgrammer, info1, args1);
         MOOList code1 = new MOOList();
-        code1.getValue().add(new MOOString("true"));
+        code1.add("true");
         MOOVerbAPI.set_verb_code(mProgrammer, name1, code1);
 
         MOOObjRef thing = MOOObjectAPI.create(new MOOObjRef(1), mProgrammer);
@@ -242,16 +242,16 @@ public class ConnectionTests extends MinimalTelnetBase
         
         MOOString name2 = new MOOString("wibble");
         MOOList info2 = new MOOList();
-        info2.getValue().add(new MOOObjRef(3));
-        info2.getValue().add(new MOOString("rwx"));
-        info2.getValue().add(name2);
+        info2.add(new MOOObjRef(3));
+        info2.add("rwx");
+        info2.add(name2);
         MOOList args2 = new MOOList();
-        args2.getValue().add(new MOOString("none"));
-        args2.getValue().add(new MOOString("over"));
-        args2.getValue().add(new MOOString("this"));
+        args2.add("none");
+        args2.add("over");
+        args2.add("this");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.getValue().add(new MOOString("notify(player, \"wobble\\n\", false);"));
+        code2.add("notify(player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();

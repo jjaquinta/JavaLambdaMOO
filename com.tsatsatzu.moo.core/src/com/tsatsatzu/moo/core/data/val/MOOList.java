@@ -30,6 +30,31 @@ public class MOOList extends MOOValue
         return sb.toString();
     }
     
+    public int size()
+    {
+        return mValue.size();
+    }
+    
+    public MOOValue get(int idx)
+    {
+        return mValue.get(idx);
+    }
+    
+    public void add(MOOValue v)
+    {
+        mValue.add(v);
+    }
+    
+    public void add(Number v)
+    {
+        mValue.add(new MOONumber(v));
+    }
+    
+    public void add(String v)
+    {
+        mValue.add(new MOOString(v));
+    }
+    
     // getters and setters
 
     public List<MOOValue> getValue()

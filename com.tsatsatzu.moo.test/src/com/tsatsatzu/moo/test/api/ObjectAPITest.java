@@ -60,7 +60,7 @@ public class ObjectAPITest extends MinimalDBBase
     {
         MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "children('#1');");
         Assert.assertTrue("Script should return list", ret instanceof MOOList);
-        Assert.assertEquals("Script should return three items in list", 3, ((MOOList)ret).getValue().size());
+        Assert.assertEquals("Script should return three items in list", 3, ((MOOList)ret).size());
     }
     @Test
     public void testRecycle() throws MOOException
@@ -81,16 +81,16 @@ public class ObjectAPITest extends MinimalDBBase
         MOOObjRef firstRoom = new MOOObjRef(2);
         MOOString name = new MOOString("accept");
         MOOList info = new MOOList();
-        info.getValue().add(new MOOObjRef(3));
-        info.getValue().add(new MOOString("rwx"));
-        info.getValue().add(name);
+        info.add(new MOOObjRef(3));
+        info.add("rwx");
+        info.add(name);
         MOOList args = new MOOList();
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
-        args.getValue().add(new MOOString("none"));
+        args.add("none");
+        args.add("none");
+        args.add("none");
         MOOVerbAPI.add_verb(firstRoom, info, args);
         MOOList code = new MOOList();
-        code.getValue().add(new MOOString("true;"));
+        code.add("true;");
         MOOVerbAPI.set_verb_code(firstRoom, name, code);
         MOOObjectAPI.create(firstRoom, new MOOObjRef(mProgrammer));
         MOOScriptLogic.executeScript(mProgrammer, "move('#3', '#4');");

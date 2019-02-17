@@ -151,7 +151,7 @@ public class MemImport
 //                MOOObjRef o = readObj(is);
 //                if (o.isNone())
 //                    break;
-//                contents.getValue().add(o);
+//                contents.add(o);
 //            }
 //            setDefaultProperty(obj, MOOObject.PROP_CONTENTS, contents);
 //            System.out.println("  contents size="+contents.getValue().size());
@@ -210,7 +210,7 @@ public class MemImport
             prop.setValue(new MOOList());
             obj.getProperties().put(prop.getName(), prop);
         }
-        ((MOOList)prop.getValue()).getValue().add(value);
+        ((MOOList)prop.getValue()).add(value);
     }
     
     private static void readObjProps(MemStore store, InputStream is, MOOObject obj, Map<Integer, List<MOOProperty>> definedPropIndex,
@@ -359,7 +359,7 @@ public class MemImport
             int size = readInt(is);
             MOOList ret = new MOOList();
             for (int i = 0; i < size; i++)
-                ret.getValue().add(readValue(is));
+                ret.add(readValue(is));
             return ret;
         }
         else if (typeof == 9)

@@ -28,14 +28,14 @@ public class CoerceLogic
         {
             MOOList ret = new MOOList();
             for (Object o : ((Collection<?>)obj))
-                ret.getValue().add(toValue(o));
+                ret.add(toValue(o));
             return ret;
         }
         if (obj instanceof Object[])
         {
             MOOList ret = new MOOList();
             for (Object o : ((Object[])obj))
-                ret.getValue().add(toValue(o));
+                ret.add(toValue(o));
             return ret;
         }
         if (obj instanceof JSObjRef)
@@ -54,7 +54,7 @@ public class CoerceLogic
                 for (int i = 0; som.hasSlot(i); i++)
                 {
                     Object v = som.getSlot(i);
-                    list.getValue().add(toValue(v));
+                    list.add(toValue(v));
                 }
                 return list;
             }
@@ -100,9 +100,9 @@ public class CoerceLogic
         if (val instanceof MOOList)
         {
             MOOList list = (MOOList)val;
-            Object[] ret = new Object[list.getValue().size()];
-            for (int i = 0; i < list.getValue().size(); i++)
-                ret[i] = toJavascript(list.getValue().get(i));
+            Object[] ret = new Object[list.size()];
+            for (int i = 0; i < list.size(); i++)
+                ret[i] = toJavascript(list.get(i));
             return ret;
         }
         else if (val instanceof MOONumber)

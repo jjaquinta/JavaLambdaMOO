@@ -27,7 +27,7 @@ public class MOONetworkAPI
         List<Integer> players = MOOConnectionLogic.countPlayers(includeAll.toBoolean());
         MOOList ret = new MOOList();
         for (Integer p : players)
-            ret.getValue().add(new MOONumber(p));
+            ret.add(p);
         return ret;
     }
     /*
@@ -166,8 +166,8 @@ public class MOONetworkAPI
         if (suffix == null)
             suffix = "";
         MOOList ret = new MOOList();
-        ret.getValue().add(new MOOString(prefix));
-        ret.getValue().add(new MOOString(suffix));
+        ret.add(prefix);
+        ret.add(suffix);
         return ret;
     }
     /*
@@ -280,9 +280,9 @@ public class MOONetworkAPI
         for (String key : conn.getOptions().keySet())
         {
             MOOList kv = new MOOList();
-            kv.getValue().add(new MOOString(key));
-            kv.getValue().add(conn.getOptions().get(key));
-            ret.getValue().add(kv);
+            kv.add(key);
+            kv.add(conn.getOptions().get(key));
+            ret.add(kv);
         }
         return ret;
     }
@@ -399,10 +399,10 @@ public class MOONetworkAPI
         for (MOOConnectionPoint point : MOOConnectionLogic.getConnectionPoints())
         {
             MOOList li = new MOOList();
-            li.getValue().add(point.getHandler());
-            li.getValue().add(new MOONumber(point.getCanon()));
-            li.getValue().add(point.isPrintMessages() ? MOONumber.TRUE : MOONumber.FALSE);
-            ret.getValue().add(li);
+            li.add(point.getHandler());
+            li.add(point.getCanon());
+            li.add(point.isPrintMessages() ? MOONumber.TRUE : MOONumber.FALSE);
+            ret.add(li);
         }
         return ret;
     }

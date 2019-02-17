@@ -18,7 +18,7 @@ public class MOOPlayerAPI
     {
         MOOList players = new MOOList();
         for (int oid : MOODbLogic.getPlayers())
-            players.getValue().add(new MOONumber(oid));
+            players.add(oid);
         return players;
     }
 
