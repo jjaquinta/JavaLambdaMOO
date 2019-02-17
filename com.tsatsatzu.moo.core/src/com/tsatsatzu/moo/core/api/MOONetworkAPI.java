@@ -1,5 +1,7 @@
 package com.tsatsatzu.moo.core.api;
 
+import java.util.List;
+
 import com.tsatsatzu.moo.core.data.MOOConnection;
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOObject;
@@ -21,7 +23,11 @@ public class MOONetworkAPI
     */
     public static MOOList connected_players(MOONumber includeAll)
     {
-        throw new IllegalStateException("Not implemented yet");
+        List<Integer> players = MOOConnectionLogic.countPlayers(includeAll.toBoolean());
+        MOOList ret = new MOOList();
+        for (Integer p : players)
+            ret.getValue().add(new MOONumber(p));
+        return ret;
     }
     /*
     Function: int connected_seconds (obj player)

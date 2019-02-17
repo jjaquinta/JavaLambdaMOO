@@ -62,6 +62,13 @@ public class MOOConnectionLogic
             }
             i.remove();
         }
+        mPoints.clear();
+        mHandlers.clear();
+    }
+    
+    public static void addConnectionHandler(IConnectionHandler h)
+    {
+        mHandlers.add(h);
     }
     
     public static int listen(MOOObjRef handler, String spec) throws MOOException
@@ -315,5 +322,18 @@ public class MOOConnectionLogic
             if (ref.equals(conn.getPlayer()))
                 return conn;
         return null;
+    }
+
+    public static List<Integer> countPlayers(boolean all)
+    {
+        System.out.println("***countPlayers, connections="+mConnections.size());
+        List<Integer> ret = new ArrayList<>();
+        for (MOOConnection conn : mConnections)
+        {
+            MOOObjRef player = conn.getPlayer();
+            if ((player.getValue() > 0) || all)
+                ret.add(player.getValue());
+        }
+        return ret;
     }
 }
