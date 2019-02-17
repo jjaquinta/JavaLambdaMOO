@@ -3,6 +3,7 @@ package com.tsatsatzu.moo.core.api;
 import java.util.List;
 
 import com.tsatsatzu.moo.core.data.MOOConnection;
+import com.tsatsatzu.moo.core.data.MOOConnectionPoint;
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOObject;
 import com.tsatsatzu.moo.core.data.MOOValue;
@@ -35,13 +36,23 @@ public class MOONetworkAPI
     These functions return the number of seconds that the currently-active connection to player has existed and been idle, 
     respectively. If player is not the object number of a player object with a currently-active connection, then E_INVARG is raised. 
     */
-    public static MOONumber connected_seconds(MOOObjRef player)
+    public static MOONumber connected_seconds(MOOObjRef player) throws MOOException
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOConnection conn = MOOConnectionLogic.findConnection(player);
+        if (conn == null)
+            throw new MOOException("Player #"+player.getValue()+" is not currently connected");
+        long elapsed = System.currentTimeMillis() - conn.getConnectedAt();
+        MOONumber ret = new MOONumber((int)(elapsed/1000L));
+        return ret;
     }
-    public static MOONumber idle_seconds(MOOObjRef player)
+    public static MOONumber idle_seconds(MOOObjRef player) throws MOOException
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOConnection conn = MOOConnectionLogic.findConnection(player);
+        if (conn == null)
+            throw new MOOException("Player #"+player.getValue()+" is not currently connected");
+        long elapsed = System.currentTimeMillis() - conn.getActiveAt();
+        MOONumber ret = new MOONumber((int)(elapsed/1000L));
+        return ret;
     }
     /*
     Function: none notify (obj conn, str string [, no-flush])
@@ -143,9 +154,21 @@ public class MOONetworkAPI
     network connection, then E_INVARG is raised. If either string is currently undefined, the value "" is used instead. See 
     the discussion of the PREFIX and SUFFIX commands in the next chapter for more information about the output prefix and suffix. 
     */
-    public static MOOList output_delimiters(MOOObjRef player)
+    public static MOOList output_delimiters(MOOObjRef player) throws MOOException
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOConnection conn = MOOConnectionLogic.findConnection(player);
+        if (conn == null)
+            throw new MOOException("Player #"+player.getValue()+" is not currently connected");
+        String prefix = conn.getPrefix();
+        if (prefix == null)
+            prefix = "";
+        String suffix = conn.getSuffix();
+        if (suffix == null)
+            suffix = "";
+        MOOList ret = new MOOList();
+        ret.getValue().add(new MOOString(prefix));
+        ret.getValue().add(new MOOString(suffix));
+        return ret;
     }
     /*
     Function: none boot_player (obj player)
@@ -160,9 +183,15 @@ public class MOONetworkAPI
 
     It is not an error if this verb does not exist; the call is simply skipped. 
     */
-    public static void boot_player(MOOObjRef player)
+    public static void boot_player(MOOObjRef player) throws MOOException
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOObject programmer = MOOProgrammerLogic.getProgrammer();
+        if (!programmer.isWizard() && !programmer.equals(player))
+            throw new MOOException("Must be wizard or same user to boot");
+        MOOConnection conn = MOOConnectionLogic.findConnection(player);
+        if (conn == null)
+            throw new MOOException("Player #"+player.getValue()+" is not currently connected");
+        conn.close();
     }
     /*
     Function: str connection_name (obj player)
@@ -223,9 +252,15 @@ public class MOONetworkAPI
         is set to have no flush command at all. The default value of this option can be set via the property 
         $server_options.default_flush_command; see the chapter on server assumptions about the database for details. 
     */
-    public static void set_connection_option(MOOObjRef conn, MOOString option, MOOValue value)
+    public static void set_connection_option(MOOObjRef player, MOOString option, MOOValue value) throws MOOException
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOObject programmer = MOOProgrammerLogic.getProgrammer();
+        if (!programmer.isWizard() && !programmer.equals(player))
+            throw new MOOException("Must be wizard or same user to boot");
+        MOOConnection conn = MOOConnectionLogic.findConnection(player);
+        if (conn == null)
+            throw new MOOException("Player #"+player.getValue()+" is not currently connected");
+        conn.getOptions().put(option.getValue(), value);
     }
     /*
     Function: list connection_options (obj conn)
@@ -233,18 +268,38 @@ public class MOONetworkAPI
     conn. Raises E_INVARG if conn does not specify a current connection and E_PERM if the programmer is neither conn nor a 
     wizard. 
     */
-    public static MOOList connection_options(MOOObjRef conn)
+    public static MOOList connection_options(MOOObjRef player) throws MOOException
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOObject programmer = MOOProgrammerLogic.getProgrammer();
+        if (!programmer.isWizard() && !programmer.equals(player))
+            throw new MOOException("Must be wizard or same user to boot");
+        MOOConnection conn = MOOConnectionLogic.findConnection(player);
+        if (conn == null)
+            throw new MOOException("Player #"+player.getValue()+" is not currently connected");
+        MOOList ret = new MOOList();
+        for (String key : conn.getOptions().keySet())
+        {
+            MOOList kv = new MOOList();
+            kv.getValue().add(new MOOString(key));
+            kv.getValue().add(conn.getOptions().get(key));
+            ret.getValue().add(kv);
+        }
+        return ret;
     }
     /*
     Function: value connection_option (obj conn, str name)
     Returns the current setting of the option name for the connection conn. Raises E_INVARG if conn does not specify a 
     current connection and E_PERM if the programmer is neither conn nor a wizard. 
     */
-    public static MOOValue connection_option(MOOObjRef conn, MOOString name)
+    public static MOOValue connection_option(MOOObjRef player, MOOString name) throws MOOException
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOObject programmer = MOOProgrammerLogic.getProgrammer();
+        if (!programmer.isWizard() && !programmer.equals(player))
+            throw new MOOException("Must be wizard or same user to boot");
+        MOOConnection conn = MOOConnectionLogic.findConnection(player);
+        if (conn == null)
+            throw new MOOException("Player #"+player.getValue()+" is not currently connected");
+        return conn.getOptions().get(name.getValue());
     }
     /*
     Function: obj open_network_connection (value, ...)
@@ -305,7 +360,7 @@ public class MOONetworkAPI
         MOOObject programmer = MOOProgrammerLogic.getProgrammer();
         if (!programmer.isWizard())
             throw new MOOException("Only a wizard can listen");
-        int canon = MOOConnectionLogic.listen(object, point.getValue());
+        int canon = MOOConnectionLogic.listen(object, point.getValue(), printMessages.toBoolean());
         return new MOONumber(canon);
     }
     /*
@@ -340,6 +395,15 @@ public class MOONetworkAPI
      */
     public static MOOList listeners()
     {
-        throw new IllegalStateException("Not implemented yet");
+        MOOList ret = new MOOList();
+        for (MOOConnectionPoint point : MOOConnectionLogic.getConnectionPoints())
+        {
+            MOOList li = new MOOList();
+            li.getValue().add(point.getHandler());
+            li.getValue().add(new MOONumber(point.getCanon()));
+            li.getValue().add(point.isPrintMessages() ? MOONumber.TRUE : MOONumber.FALSE);
+            ret.getValue().add(li);
+        }
+        return ret;
     }
 }

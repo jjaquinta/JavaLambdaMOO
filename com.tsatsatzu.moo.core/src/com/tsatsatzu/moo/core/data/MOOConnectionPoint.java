@@ -10,6 +10,7 @@ public abstract class MOOConnectionPoint
     private int                mCanon;
     private MOOObjRef          mHandler;
     private Thread             mService;
+    private boolean            mPrintMessages;
 
     // utilities
     
@@ -56,5 +57,13 @@ public abstract class MOOConnectionPoint
     public void setService(Thread service)
     {
         mService = service;
+    }
+    public boolean isPrintMessages()
+    {
+        return mPrintMessages;
+    }
+    public void setPrintMessages(boolean printMessages)
+    {
+        mPrintMessages = printMessages;
     }
 }

@@ -15,7 +15,8 @@ public class TestConnectionHandler implements IConnectionHandler
     private MOOTestConnection   mConnection = null;
     private List<String>        mToServer = new ArrayList<>();
     private List<String>        mToClient = new ArrayList<>();
-    private boolean             mOpen;
+    private boolean             mPointOpen;
+    private boolean             mConnectionOpen;
 
     @Override
     public boolean isHandlerFor(String spec)
@@ -40,14 +41,14 @@ public class TestConnectionHandler implements IConnectionHandler
         public void open() throws MOOException
         {
             mConnection = null;
-            mOpen = true;;
+            mPointOpen = true;;
         }
 
         @Override
         public void close() throws MOOException
         {
             mConnection = null;
-            mOpen = false;
+            mPointOpen = false;
         }
 
         @Override
@@ -62,11 +63,12 @@ public class TestConnectionHandler implements IConnectionHandler
                 catch (InterruptedException e)
                 {
                 }
-                if (mOpen == false)
+                if (mPointOpen == false)
                     return null;
             }
             MOOConnection conn = mConnection;
             mConnection = null;
+            mConnectionOpen = true;
             return conn;
         }        
     }
@@ -102,7 +104,9 @@ public class TestConnectionHandler implements IConnectionHandler
                 catch (InterruptedException e)
                 {
                 }
-                if (mOpen == false)
+                if (mPointOpen == false)
+                    return null;
+                if (mConnectionOpen == false)
                     return null;
             }
             String line = mToServer.get(0);
@@ -113,6 +117,7 @@ public class TestConnectionHandler implements IConnectionHandler
         @Override
         public void close() throws MOOException
         {
+            mConnectionOpen = false;
         }
         
     }

@@ -169,8 +169,8 @@ public class FuncNetworkAPI
 
     public static void unlisten(Object arg0) throws MOOException
     {
-        MOOObjRef player = CoerceLogic.toObjRef(arg0);
-        MOONetworkAPI.unlisten(player);
+        MOOValue canon = CoerceLogic.toValue(arg0);
+        MOONetworkAPI.unlisten(canon);
     }
 
     public static Object listeners() throws MOOException

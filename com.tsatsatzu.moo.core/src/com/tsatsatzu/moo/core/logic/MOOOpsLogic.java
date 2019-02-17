@@ -91,6 +91,7 @@ public class MOOOpsLogic
             log("Error during initialization", e);
             e.printStackTrace();
         }
+        mTermThread = null;
     }
     
     public static void log(String txt)

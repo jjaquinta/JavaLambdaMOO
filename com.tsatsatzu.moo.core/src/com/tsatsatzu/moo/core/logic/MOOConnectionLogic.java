@@ -2,6 +2,7 @@ package com.tsatsatzu.moo.core.logic;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +72,7 @@ public class MOOConnectionLogic
         mHandlers.add(h);
     }
     
-    public static int listen(MOOObjRef handler, String spec) throws MOOException
+    public static int listen(MOOObjRef handler, String spec, boolean print) throws MOOException
     {
         for (MOOConnectionPoint p : mPoints.values())
             if (p.getHandler().equals(handler))
@@ -87,6 +88,7 @@ public class MOOConnectionLogic
             throw new MOOException("No connection handler for '"+spec+"'");
         final MOOConnectionPoint conn = connHandler.setupPoint(spec);
         conn.setHandler(handler);
+        conn.setPrintMessages(print);
         mPoints.put(conn.getCanon(), conn);
         conn.open();
         Thread t = new Thread("Server Listener for "+conn.getCanon()) { public void run() { doListen(conn); } };
@@ -103,6 +105,11 @@ public class MOOConnectionLogic
         conn.close();
     }
     
+    public static Collection<MOOConnectionPoint> getConnectionPoints()
+    {
+        return mPoints.values();
+    }
+    
     private static void doListen(MOOConnectionPoint point)
     {
         MOOOpsLogic.log("Starting to listen on "+point.getCanon());
@@ -115,6 +122,7 @@ public class MOOConnectionLogic
                     break;
                 conn.setPlayer(new MOOObjRef(mNextConnectionID--));
                 conn.setPoint(point);
+                conn.setConnectedAt(System.currentTimeMillis());
                 Thread t = new Thread("Connection listener for "+point.getCanon()+" #"+conn.getPlayer().getValue())
                         {public void run() { doConnection(conn); } };
                 conn.setService(t);
@@ -162,6 +170,7 @@ public class MOOConnectionLogic
                     MOOOpsLogic.log("End of input detected");
                     break;
                 }
+                conn.setActiveAt(System.currentTimeMillis());
                 MOOOpsLogic.log("Received '"+inbuf+"'");
                 if (conn.isProgramMode())
                     doProgram(conn, inbuf);
@@ -326,7 +335,6 @@ public class MOOConnectionLogic
 
     public static List<Integer> countPlayers(boolean all)
     {
-        System.out.println("***countPlayers, connections="+mConnections.size());
         List<Integer> ret = new ArrayList<>();
         for (MOOConnection conn : mConnections)
         {

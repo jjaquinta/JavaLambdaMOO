@@ -157,7 +157,7 @@ public class MOOParseLogic
     
     private static boolean isSpecial(MOOCommand cmd)
     {
-        switch (cmd.getArgs().get(0).toLowerCase())
+        switch (cmd.getArgs().get(0))
         {
             case ".program":
                 cmd.setType(MOOCommand.PROGRAM);
