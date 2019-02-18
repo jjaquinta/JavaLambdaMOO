@@ -113,6 +113,7 @@ public class MOOScriptLogic
     }
     public static MOOValue executeScript(MOOObjRef programmer, String script, Map<String,Object> props) throws MOOException
     {
+        script = preProcess(script);
         MOOProgrammerLogic.pushProgrammer(programmer);
         try
         {
@@ -145,5 +146,72 @@ public class MOOScriptLogic
             b.put(key, val);
         }
         return context;
+    }
+    
+    private static String preProcess(String script)
+    {
+        StringBuffer sb = new StringBuffer();
+        int state = 0;
+        for (int i = 0; i < script.length(); i++)
+        {
+            char ch = script.charAt(i);
+            switch (state)
+            {
+                case 0:
+                    if (ch == '$')
+                        sb.append("toobj(0).");
+                    else if (ch == '#')
+                    {
+                        sb.append("toobj(");
+                        while ((i + 1 < script.length()) && Character.isDigit(script.charAt(i+1)))
+                        {
+                            sb.append(script.charAt(++i));
+                        }
+                        sb.append(")");
+                    }
+                    else if (ch == '\"')
+                    {
+                        sb.append(ch);
+                        state = 1;
+                    }
+                    else if (ch == '\'')
+                    {
+                        sb.append(ch);
+                        state = 2;
+                    }
+                    else
+                        sb.append(ch);
+                    break;
+                case 1:
+                    if (ch == '\"')
+                    {
+                        sb.append(ch);
+                        state = 0;
+                    }
+                    else if (ch == '\\')
+                    {
+                        sb.append(ch);
+                        sb.append(script.charAt(++i));
+                    }
+                    else
+                        sb.append(ch);
+                    break;
+                case 2:
+                    if (ch == '\'')
+                    {
+                        sb.append(ch);
+                        state = 0;
+                    }
+                    else if (ch == '\\')
+                    {
+                        sb.append(ch);
+                        sb.append(script.charAt(++i));
+                    }
+                    else
+                        sb.append(ch);
+                    break;
+            }
+        }
+        return sb.toString();
     }
 }

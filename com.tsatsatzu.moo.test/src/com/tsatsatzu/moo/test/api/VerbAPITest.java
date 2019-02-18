@@ -21,7 +21,7 @@ public class VerbAPITest extends MinimalDBBase
     @Test
     public void testVerbs() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verbs('#0');");
+        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verbs(#0);");
         Assert.assertTrue("Script should return List", ret instanceof MOOList);
         MOOList verbs = (MOOList)ret;
         Assert.assertEquals("Should be one verb", 1, verbs.size());
@@ -33,7 +33,7 @@ public class VerbAPITest extends MinimalDBBase
     @Test
     public void testVerbInfo() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verb_info('#0', 'do_login_command');");
+        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verb_info(#0, 'do_login_command');");
         Assert.assertTrue("Script should return List", ret instanceof MOOList);
         MOOList info = (MOOList)ret;
         Assert.assertEquals("Should be 3 infos", 3, info.size());
@@ -51,7 +51,7 @@ public class VerbAPITest extends MinimalDBBase
     @Test
     public void testSetVerbInfo() throws MOOException
     {
-        MOOScriptLogic.executeScript(mProgrammer, "var info = []; info[0] = toobj('#2'); info[1] = 'rw'; info[2] = 'wibble'; set_verb_info('#0', 'do_login_command', info);");
+        MOOScriptLogic.executeScript(mProgrammer, "var info = []; info[0] = toobj(#2); info[1] = 'rw'; info[2] = 'wibble'; set_verb_info(#0, 'do_login_command', info);");
         MOOObject obj = MOODbLogic.get(0);
         MOOVerb verb = obj.getVerb("wibble");
         Assert.assertNotNull("Couldn't find verb 'wibble'", verb);
@@ -64,7 +64,7 @@ public class VerbAPITest extends MinimalDBBase
     @Test
     public void testVerbArgs() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verb_args('#0', 'do_login_command');");
+        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verb_args(#0, 'do_login_command');");
         Assert.assertTrue("Script should return List", ret instanceof MOOList);
         MOOList info = (MOOList)ret;
         Assert.assertEquals("Should be 3 infos", 3, info.size());
@@ -82,7 +82,7 @@ public class VerbAPITest extends MinimalDBBase
     @Test
     public void testSetVerbArgs() throws MOOException
     {
-        MOOScriptLogic.executeScript(mProgrammer, "var args = []; args[0] = 'any'; args[1] = 'over'; args[2] = 'any'; set_verb_args('#0', 'do_login_command', args);");
+        MOOScriptLogic.executeScript(mProgrammer, "var args = []; args[0] = 'any'; args[1] = 'over'; args[2] = 'any'; set_verb_args(#0, 'do_login_command', args);");
         MOOObject obj = MOODbLogic.get(0);
         MOOVerb verb = obj.getVerb("do_login_command");
         Assert.assertNotNull("Couldn't find verb 'do_login_command'", verb);
@@ -95,9 +95,9 @@ public class VerbAPITest extends MinimalDBBase
     public void testAddVerb() throws MOOException
     {
         MOOScriptLogic.executeScript(mProgrammer, 
-                "var info = []; info[0] = toobj('#2'); info[1] = 'rw'; info[2] = 'wibble'; "
+                "var info = []; info[0] = toobj(#2); info[1] = 'rw'; info[2] = 'wibble'; "
                 + "var args = []; args[0] = 'any'; args[1] = 'over'; args[2] = 'any'; "
-                + "addVerb('#0', info, args);");
+                + "addVerb(#0, info, args);");
         MOOObject obj = MOODbLogic.get(0);
         MOOVerb verb = obj.getVerb("wibble");
         Assert.assertNotNull("Couldn't find verb 'wibble'", verb);
@@ -113,7 +113,7 @@ public class VerbAPITest extends MinimalDBBase
     @Test
     public void testDeleteVerb() throws MOOException
     {
-        MOOScriptLogic.executeScript(mProgrammer, "delete_verb('#0', 'do_login_command');");
+        MOOScriptLogic.executeScript(mProgrammer, "delete_verb(#0, 'do_login_command');");
         MOOObject obj = MOODbLogic.get(0);
         MOOVerb verb = obj.getVerb("do_login_command");
         Assert.assertNull("Verb not deleted", verb);
@@ -122,19 +122,19 @@ public class VerbAPITest extends MinimalDBBase
     @Test
     public void testVerbCode() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verb_code('#0', 'do_login_command', true, true);");
+        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "verb_code(#0, 'do_login_command', true, true);");
         Assert.assertTrue("Script should return List", ret instanceof MOOList);
         MOOList code = (MOOList)ret;
         Assert.assertEquals("Should be one line of code", 1, code.size());
         MOOValue line = code.get(0);
         Assert.assertTrue("List should contain string", line instanceof MOOString);
-        Assert.assertEquals("Unexpected code", "toobj('#3');", ((MOOString)line).getValue());
+        Assert.assertEquals("Unexpected code", "toobj(#3);", ((MOOString)line).getValue());
     }
 
     @Test
     public void testSetVerbCode() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "var code = []; code[0] = \"return '#2';\"; set_verb_code('#0', 'do_login_command', code);");
+        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "var code = []; code[0] = \"return #2;\"; set_verb_code(#0, 'do_login_command', code);");
         Assert.assertTrue("Script should return List", ret instanceof MOOList);
         MOOList err = (MOOList)ret;
         Assert.assertEquals("Should be no errors", 0, err.size());
@@ -142,7 +142,7 @@ public class VerbAPITest extends MinimalDBBase
         MOOVerb verb = obj.getVerb("do_login_command");
         Assert.assertNotNull("Couldn't find verb 'do_login_command'", verb);
         Assert.assertEquals("Should be one line of code", 1, verb.getScript().size());
-        Assert.assertEquals("Unexpected code", "return '#2';", verb.getScript().get(0));
+        Assert.assertEquals("Unexpected code", "return #2;", verb.getScript().get(0));
     }
 
     @Test
@@ -162,10 +162,10 @@ public class VerbAPITest extends MinimalDBBase
         MOOList code = new MOOList();
         code.add("3;");
         MOOVerbAPI.set_verb_code(room, name, code);
-        MOOValue val1 = MOOScriptLogic.executeScript(mProgrammer, "toObj('#2').test1();");
+        MOOValue val1 = MOOScriptLogic.executeScript(mProgrammer, "toObj(#2).test1();");
         Assert.assertTrue("Should return a number", val1 instanceof MOONumber);
         Assert.assertEquals("Should return 3", 3, ((MOONumber)val1).getValue());
-        MOOValue val2 = MOOScriptLogic.executeScript(mProgrammer, "toObj('#3').location.test1();");
+        MOOValue val2 = MOOScriptLogic.executeScript(mProgrammer, "toObj(#3).location.test1();");
         Assert.assertTrue("Should return a number", val2 instanceof MOONumber);
         Assert.assertEquals("Should return 3", 3, ((MOONumber)val2).getValue());
     }
@@ -196,7 +196,7 @@ public class VerbAPITest extends MinimalDBBase
         MOOVerbAPI.set_verb_code(room, name1, code1);
         MOOVerbAPI.add_verb(room, info2, args);
         MOOVerbAPI.set_verb_code(room, name2, code2);
-        MOOValue val1 = MOOScriptLogic.executeScript(mProgrammer, "toObj('#2').test2();");
+        MOOValue val1 = MOOScriptLogic.executeScript(mProgrammer, "toObj(#2).test2();");
         Assert.assertTrue("Should return a number", val1 instanceof MOONumber);
         Assert.assertEquals("Should return 4", 4.0, ((MOONumber)val1).getValue());
     }

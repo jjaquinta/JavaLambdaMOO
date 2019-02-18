@@ -69,7 +69,7 @@ Wizard
 0
 0
 #0:0
-toobj('#3');
+toobj(#3);
 .
 0 clocks
 0 queued tasks
