@@ -114,6 +114,7 @@ public class MOOScriptLogic
     public static MOOValue executeScript(MOOObjRef programmer, String script, Map<String,Object> props) throws MOOException
     {
         script = preProcess(script);
+        addConstants(props);
         MOOProgrammerLogic.pushProgrammer(programmer);
         try
         {
@@ -213,5 +214,25 @@ public class MOOScriptLogic
             }
         }
         return sb.toString();
+    }
+    
+    private static void addConstants(Map<String,Object> props)
+    {
+        props.put("E_NONE", 0);
+        props.put("E_TYPE", 1); // Type mismatch
+        props.put("E_DIV", 2); // Division by zero
+        props.put("E_PERM", 3); // Permission denied
+        props.put("E_PROPNF", 4); // Property not found
+        props.put("E_VERBNF", 5); // Verb not found
+        props.put("E_VARNF", 6); // Variable not found
+        props.put("E_INVIND", 7); // Invalid indirection
+        props.put("E_RECMOVE", 8); // Recursive move
+        props.put("E_MAXREC", 9); // Too many verb calls
+        props.put("E_RANGE", 10); // Range error
+        props.put("E_ARGS", 11); // Incorrect number of arguments
+        props.put("E_NACC", 12); // Move refused by destination
+        props.put("E_INVARG", 13); // Invalid argument
+        props.put("E_QUOTA", 14); // Resource limit exceeded
+        props.put("E_FLOAT", 15); // Floating-point arithmetic error
     }
 }
