@@ -22,6 +22,7 @@ import com.tsatsatzu.moo.core.logic.script.funcs.FuncNetworkAPI;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncObjectAPI;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncPlayerAPI;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncPropAPI;
+import com.tsatsatzu.moo.core.logic.script.funcs.FuncTaskAPI;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncVerbAPI;
 
 public class MOOScriptLogic
@@ -40,6 +41,7 @@ public class MOOScriptLogic
             FuncVerbAPI.register(mEngine);
             FuncConvAPI.register(mEngine);
             FuncNetworkAPI.register(mEngine);
+            FuncTaskAPI.register(mEngine);
         }
         return mEngine;
     }
@@ -72,7 +74,14 @@ public class MOOScriptLogic
         props.put("verb", new MOOString(verbName));
         props.put("caller", MOOObjRef.NONE);
         props.put("player", new MOOObjRef(programmer));
-        return executeScript(programmer, script, props);
+        try
+        {
+            return executeScript(programmer, script, props);
+        }
+        catch (MOOException e)
+        {
+            throw new MOOException("Error executing #"+obj.getOID()+":"+verbName+" as #"+programmer.getValue(), e);
+        }
     }
     public static MOOValue executeCommand(MOOCommand cmd) throws MOOException
     {
