@@ -1,11 +1,13 @@
 package com.tsatsatzu.moo.core.api;
 
 import com.tsatsatzu.moo.core.data.MOOException;
+import com.tsatsatzu.moo.core.data.MOOStackElement;
 import com.tsatsatzu.moo.core.data.MOOValue;
 import com.tsatsatzu.moo.core.data.val.MOOList;
 import com.tsatsatzu.moo.core.data.val.MOONumber;
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.data.val.MOOString;
+import com.tsatsatzu.moo.core.logic.script.MOOScriptLogic;
 
 public class MOOTaskAPI
 {
@@ -16,9 +18,35 @@ public class MOOTaskAPI
     available to any try-except statements that catch the error. If the error is not caught, then 
     message will appear on the first line of the traceback printed to the user. 
     */
-    public static void raise(MOOString code, MOOString message, MOOValue value) throws MOOException
+    public static void raise(MOOValue code, MOOString message, MOOValue value) throws MOOException
     {
-        throw new MOOException("Not implemented yet.");
+        String msg = "";
+        if (code instanceof MOOString)
+            msg = ((MOOString)code).getValue();
+        else if (code instanceof MOONumber)
+            switch (((MOONumber)code).getValue().intValue())
+            {
+                case 0: msg = "E_NONE"; break;
+                case 1: msg = "E_TYPE Type mismatch"; break;
+                case 2: msg = "E_DIV Division by zero"; break;
+                case 3: msg = "E_PERM Permission denied"; break;
+                case 4: msg = "E_PROPNF Property not found"; break;
+                case 5: msg = "E_VERBNF Verb not found"; break;
+                case 6: msg = "E_VARNF Variable not found"; break;
+                case 7: msg = "E_INVIND Invalid indirection"; break;
+                case 8: msg = "E_RECMOVE Recursive move"; break;
+                case 9: msg = "E_MAXREC Too many verb calls"; break;
+                case 10: msg = "E_RANGE Range error"; break;
+                case 11: msg = "E_ARGS Incorrect number of arguments"; break;
+                case 12: msg = "E_NACC Move refused by destination"; break;
+                case 13: msg = "E_INVARG Invalid argument"; break;
+                case 14: msg = "E_QUOTA Resource limit exceeded"; break;
+                case 15: msg = "E_FLOAT Floating-point arithmetic error"; break;
+
+            }
+        if (message != null)
+            msg += " " + message.getValue();
+        throw new MOOException(msg);
     }
     /*
     Function: value call_function (str func-name, arg, ...)
@@ -291,7 +319,20 @@ public class MOOTaskAPI
     */
     public static MOOList callers(MOONumber includeLineNumbers) throws MOOException
     {
-        throw new MOOException("Not implemented yet.");
+        MOOStackElement[] stack = MOOScriptLogic.getScriptStack();
+        MOOList ret = new MOOList();
+        for (MOOStackElement s : stack)
+        {
+            MOOList e = new MOOList();
+            e.add(new MOOObjRef(s.getThis()));
+            e.add(s.getVerbName());
+            e.add(new MOOObjRef(s.getProgrammer()));
+            e.add(new MOOObjRef(s.getVerbLoc()));
+            e.add(new MOOObjRef(s.getPlayer()));
+            e.add(s.getLineNumber());
+            ret.add(e);
+        }
+        return ret;
     }
     /*
     Function: list task_stack (int task-id [, include-line-numbers])

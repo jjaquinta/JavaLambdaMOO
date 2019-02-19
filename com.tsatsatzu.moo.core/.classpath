@@ -7,5 +7,7 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/jo.audio.utils"/>
+	<classpathentry kind="lib" path="lib/jython-engine-20080611.jar"/>
+	<classpathentry kind="lib" path="lib/jython-2.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

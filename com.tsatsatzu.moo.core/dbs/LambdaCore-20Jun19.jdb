@@ -225088,37 +225088,38 @@ HTTP Server
 36
 1
 #0:0
+
+
 function do_login_command() {
-"...This code should only be run as a server task...";
-if (callers()) {
-return E_PERM;
-}
-if (typeof(h = $network.incoming_connection(player)) == OBJ) {
-"connected to an object";
-return h;
-} else if (h) {
-return 0;
-}
-host = $string_utils.connection_hostname(connection_name(player));
-if ($login.redlisted(host)) {
-boot_player(player);
-server_log(tostr("REDLISTED: ", player, " from ", host));
-return 0;
-}
-"HTTP server by Krate";
-try {
-newargs = $http.handle_connection.apply($http.handle_connection, args);
-if (!newargs) {
-return 0;
-}
-args = newargs;
-} catch (ANY){
-}
-"...checks to see if the login is spamming the server with too many commands...";
-if (!$login.maybe_limit_commands()) {
-args = $login.parse_command.apply($login.parse_command, args);
-return $login[args[1]].apply($login[args[1]], listdelete(args, 1));
-}
+	"...This code should only be run as a server task...";
+	if (callers().length > 1) {
+		raise(E_PERM);
+	}
+	if (typeof (h = $network.incoming_connection(player)) == OBJ) {
+		"connected to an object";
+		return h;
+	} else if (h) {
+		return 0;
+	}
+	host = $string_utils.connection_hostname(connection_name(player));
+	if ($login.redlisted(host)) {
+		boot_player(player);
+		server_log(tostr("REDLISTED: ", player, " from ", host));
+		return 0;
+	}
+	"HTTP server by Krate";
+	try {
+		newargs = $http.handle_connection.apply($http.handle_connection, args);
+		if (!newargs) {
+			return 0;
+		}
+		args = newargs;
+	} catch (ANY) {}
+	"...checks to see if the login is spamming the server with too many commands...";
+	if (!$login.maybe_limit_commands()) {
+		args = $login.parse_command.apply($login.parse_command, args);
+		return $login[args[1]].apply($login[args[1]], listdelete(args, 1));
+	}
 }
 do_login_command();
 .

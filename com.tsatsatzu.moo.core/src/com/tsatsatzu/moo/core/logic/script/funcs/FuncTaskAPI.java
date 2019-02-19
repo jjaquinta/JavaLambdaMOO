@@ -21,9 +21,9 @@ public class FuncTaskAPI
             @Override
             public MOOValue call(Object... args) throws MOOException
             {
-                MOOString code = CoerceLogic.toString(args[0]); 
-                MOOString message = CoerceLogic.toString(args[1]); 
-                MOOValue value = CoerceLogic.toValue(args[2]);
+                MOOValue code = CoerceLogic.toValue(args[0]); 
+                MOOString message = (args.length > 1) ? CoerceLogic.toString(args[1]) : null; 
+                MOOValue value = (args.length > 2) ? CoerceLogic.toValue(args[2]) : null;
                 MOOTaskAPI.raise(code, message, value);
                 return null;
             }
@@ -146,7 +146,7 @@ public class FuncTaskAPI
             @Override
             public MOOValue call(Object... args) throws MOOException
             {
-                MOONumber includeLineNumbers = CoerceLogic.toNumber(args[0]);
+                MOONumber includeLineNumbers = args.length > 0 ? CoerceLogic.toNumber(args[0]) : MOONumber.FALSE;
                 MOOList ret = MOOTaskAPI.callers(includeLineNumbers);
                 return ret;
             }

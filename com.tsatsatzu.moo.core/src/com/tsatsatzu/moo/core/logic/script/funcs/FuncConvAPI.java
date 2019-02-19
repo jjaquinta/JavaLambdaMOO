@@ -27,11 +27,4 @@ public class FuncConvAPI
         engine.put("to_obj", toobj);
         engine.put("toObj", toobj);
     }
-    
-    public static Object toobj(Object arg0) throws MOOException
-    {
-        MOOValue val = CoerceLogic.toValue(arg0);
-        MOOObjRef object = MOOConvAPI.toobj(val);
-        return CoerceLogic.toJavascript(object);
-    }
 }

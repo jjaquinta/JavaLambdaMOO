@@ -61,6 +61,28 @@ public class VerbAPITest extends MinimalDBBase
         Assert.assertEquals("Unexpected name", "wibble", verb.getName());
     }
 
+    //@Test
+    public void testSetVerbInfoPython() throws MOOException
+    {
+        String script = "${python}"
+                + "from com.tsatsatzu.moo.core.logic.script.funcs import PythonAPI\n"
+                //+ "class SetVerbInfo:\n"
+                //+ "  def __call__():\n"
+                + "  info = [ '#2', 'rw', 'wibble' ]\n"
+                //+ "    info.append('#2')\n"
+                //+ "    info.append('rw')\n"
+                //+ "    info.append('wibble')\n"
+                + "  PythonAPI.set_verb_info(#0, 'do_login_command', info)\n";
+        MOOScriptLogic.executeScript(mProgrammer, script);
+        MOOObject obj = MOODbLogic.get(0);
+        MOOVerb verb = obj.getVerb("wibble");
+        Assert.assertNotNull("Couldn't find verb 'wibble'", verb);
+        Assert.assertTrue("Should be read", verb.isRead());
+        Assert.assertTrue("Should be write", verb.isWrite());
+        Assert.assertFalse("Should not be execute", verb.isExecute());
+        Assert.assertEquals("Unexpected name", "wibble", verb.getName());
+    }
+
     @Test
     public void testVerbArgs() throws MOOException
     {

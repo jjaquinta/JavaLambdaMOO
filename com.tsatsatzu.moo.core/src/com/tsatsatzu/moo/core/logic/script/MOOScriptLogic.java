@@ -2,6 +2,7 @@ package com.tsatsatzu.moo.core.logic.script;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -11,6 +12,7 @@ import javax.script.ScriptEngineManager;
 import com.tsatsatzu.moo.core.data.MOOCommand;
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOObject;
+import com.tsatsatzu.moo.core.data.MOOStackElement;
 import com.tsatsatzu.moo.core.data.MOOValue;
 import com.tsatsatzu.moo.core.data.MOOVerb;
 import com.tsatsatzu.moo.core.data.val.MOOList;
@@ -27,23 +29,36 @@ import com.tsatsatzu.moo.core.logic.script.funcs.FuncVerbAPI;
 
 public class MOOScriptLogic
 {
-    private static ScriptEngine mEngine;
+    private static final String LANGUAGE_DEFAULT = "javascript";
+    private static final String LANGUAGE_PREFIX = "${";
+    private static final String LANGUAGE_SUFFIX = "}";
     
-    private static ScriptEngine getEngine()
+    private static Map<String,String> mLanguageToEngine = new HashMap<>();
+    static
     {
-        if (mEngine == null)
+        mLanguageToEngine.put("javascript", "nashorn");
+        mLanguageToEngine.put("python", "jython");
+    }
+    private static Map<String,ScriptEngine> mEngines = new HashMap<>();
+    private static Map<Thread, Stack<MOOStackElement>> mScriptStacks = new HashMap<Thread, Stack<MOOStackElement>>();
+    
+    private static ScriptEngine getEngine(String language)
+    {
+        if (!mEngines.containsKey(language))
         {
+            String engineName = mLanguageToEngine.get(language);
             ScriptEngineManager m = new ScriptEngineManager();
-            mEngine = m.getEngineByName("nashorn");
-            FuncPlayerAPI.register(mEngine);
-            FuncObjectAPI.register(mEngine);
-            FuncPropAPI.register(mEngine);
-            FuncVerbAPI.register(mEngine);
-            FuncConvAPI.register(mEngine);
-            FuncNetworkAPI.register(mEngine);
-            FuncTaskAPI.register(mEngine);
+            ScriptEngine engine = m.getEngineByName(engineName);
+            FuncPlayerAPI.register(engine);
+            FuncObjectAPI.register(engine);
+            FuncPropAPI.register(engine);
+            FuncVerbAPI.register(engine);
+            FuncConvAPI.register(engine);
+            FuncNetworkAPI.register(engine);
+            FuncTaskAPI.register(engine);
+            mEngines.put(language, engine);
         }
-        return mEngine;
+        return mEngines.get(language);
     }
     public static MOOValue executeScript(MOOObjRef programmer, MOOObject obj, String verbName, Object... args) throws MOOException
     {
@@ -74,6 +89,14 @@ public class MOOScriptLogic
         props.put("verb", new MOOString(verbName));
         props.put("caller", MOOObjRef.NONE);
         props.put("player", new MOOObjRef(programmer));
+        MOOStackElement st = new MOOStackElement();
+        st.setThis(obj.getOID());
+        st.setVerbName(verbName);
+        st.setProgrammer(programmer.getValue());
+        st.setVerbLoc(obj.getOID());
+        st.setPlayer(programmer.getValue());
+        st.setLineNumber(0);
+        pushScriptStack(st);
         try
         {
             return executeScript(programmer, script, props);
@@ -81,6 +104,10 @@ public class MOOScriptLogic
         catch (MOOException e)
         {
             throw new MOOException("Error executing #"+obj.getOID()+":"+verbName+" as #"+programmer.getValue(), e);
+        }
+        finally
+        {
+            popScriptStack();
         }
     }
     public static MOOValue executeCommand(MOOCommand cmd) throws MOOException
@@ -113,12 +140,13 @@ public class MOOScriptLogic
     }
     public static MOOValue executeScript(MOOObjRef programmer, String script, Map<String,Object> props) throws MOOException
     {
+        String language = getLanguage(script);
         script = preProcess(script);
         addConstants(props);
         MOOProgrammerLogic.pushProgrammer(programmer);
         try
         {
-            ScriptEngine e = getEngine();
+            ScriptEngine e = getEngine(language);
             ScriptContext c = addPropsToScope(e, props);
             Object ret = e.eval(script, c);
             MOOValue val = CoerceLogic.toValue(ret);
@@ -151,6 +179,18 @@ public class MOOScriptLogic
     
     private static String preProcess(String script)
     {
+        // strip language identifiers
+        for (;;)
+        {
+            int o = script.indexOf(LANGUAGE_PREFIX);
+            if (o < 0)
+                break;
+            int e = script.indexOf(LANGUAGE_SUFFIX, o + LANGUAGE_PREFIX.length());
+            if (e < 0)
+                break;
+            script = script.substring(0, o) + script.substring(e + LANGUAGE_SUFFIX.length());
+        }
+        // parse for $/#
         StringBuffer sb = new StringBuffer();
         int state = 0;
         for (int i = 0; i < script.length(); i++)
@@ -216,6 +256,18 @@ public class MOOScriptLogic
         return sb.toString();
     }
     
+    private static String getLanguage(String script)
+    {
+        int o = script.indexOf(LANGUAGE_PREFIX);
+        if (o < 0)
+            return LANGUAGE_DEFAULT;
+        int e = script.indexOf(LANGUAGE_SUFFIX, o + LANGUAGE_PREFIX.length());
+        if (e < 0)
+            return LANGUAGE_DEFAULT;
+        String language = script.substring(o + LANGUAGE_PREFIX.length(), e);
+        return language;
+    }
+    
     private static void addConstants(Map<String,Object> props)
     {
         props.put("E_NONE", 0);
@@ -234,5 +286,36 @@ public class MOOScriptLogic
         props.put("E_INVARG", 13); // Invalid argument
         props.put("E_QUOTA", 14); // Resource limit exceeded
         props.put("E_FLOAT", 15); // Floating-point arithmetic error
+    }
+    
+    private static void pushScriptStack(MOOStackElement ele)
+    {
+        Stack<MOOStackElement> s = mScriptStacks.get(Thread.currentThread());
+        if (s == null)
+        {
+            s = new Stack<>();
+            mScriptStacks.put(Thread.currentThread(), s);
+        }
+        s.push(ele);
+    }
+    
+    private static void popScriptStack()
+    {
+        Stack<MOOStackElement> s = mScriptStacks.get(Thread.currentThread());
+        if (s != null)
+        {
+            s.pop();
+            if (s.size() == 0)
+                mScriptStacks.remove(Thread.currentThread());
+        }
+    }
+    
+    public static MOOStackElement[] getScriptStack()
+    {
+        Stack<MOOStackElement> s = mScriptStacks.get(Thread.currentThread());
+        if (s == null)
+            return new MOOStackElement[0];
+        else
+            return s.toArray(new MOOStackElement[0]);
     }
 }
