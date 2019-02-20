@@ -1,5 +1,7 @@
 package com.tsatsatzu.moo.core.data.val;
 
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.data.MOOValue;
 
 public class MOOString extends MOOValue
@@ -18,6 +20,22 @@ public class MOOString extends MOOValue
     }
     
     // utilities
+
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("type", "num");
+        json.put("value", mValue);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        mValue = json.get("value").toString();
+    }
+
     @Override
     public String toString()
     {

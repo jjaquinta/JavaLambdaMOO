@@ -315,7 +315,7 @@ public class MOOPropertyAPI
             throw new MOOException("Property "+propName.getValue()+" is not defined on "+objRef);
         MOOProperty prop = obj.getProperties().get(propName.getValue());
         MOOObject programmer = MOOProgrammerLogic.getProgrammer();
-        if (!programmer.isWizard() && !prop.isRead() && !obj.getOwner().equals(programmer))
+        if (!prop.isRead() && !programmer.isWizard() && !obj.getOwner().equals(programmer))
             throw new MOOException(programmer+" has no read permission on obj="+objRef);
         if (prop.isClear())
             return get_property(new MOOObjRef(obj.getParent()), propName);

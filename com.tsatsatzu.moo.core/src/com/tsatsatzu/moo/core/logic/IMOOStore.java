@@ -12,10 +12,13 @@ public interface IMOOStore
     public MOOObject newInstance(int parentOid);
     public void      delInstance(int oid);
     
-    public void      save(int oid);
+    public void      markDirty(int oid);
     
     public boolean   isValid(int oid);
     
     public int[]     getPlayers();
     public int       getMaxObject();
+    public int       checkpoint();
+    
+    public String getServerVersion();
 }

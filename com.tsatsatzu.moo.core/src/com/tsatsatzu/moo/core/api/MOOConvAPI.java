@@ -2,6 +2,7 @@ package com.tsatsatzu.moo.core.api;
 
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOValue;
+import com.tsatsatzu.moo.core.data.val.MOOList;
 import com.tsatsatzu.moo.core.data.val.MOONumber;
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.data.val.MOOString;
@@ -23,6 +24,19 @@ public class MOOConvAPI
     because the former is much more readable than the latter. 
 
 */
+    public static MOONumber typeof(MOOValue val) throws MOOException
+    {
+        if (val instanceof MOOString)
+            return new MOONumber(2);
+        else if (val instanceof MOONumber)
+            return new MOONumber(0);
+        else if (val instanceof MOOObjRef)
+            return new MOONumber(1);
+        else if (val instanceof MOOList)
+            return new MOONumber(4);
+        else
+            throw new MOOException("Cannot convert "+val.getClass().getName()+" to object");
+    }
 /*
     Function: str tostr (value, ...)
     Converts all of the given MOO values into strings and returns the concatenation of the results.
@@ -38,6 +52,17 @@ public class MOOConvAPI
     Note that tostr() does not do a good job of converting lists into strings; all lists, including the empty list, are converted into the string "{list}". The function toliteral(), below, is better for this purpose. 
 
 */
+    public static MOOString tostr(MOOValue val) throws MOOException
+    {
+        if (val instanceof MOOString)
+            return (MOOString)val;
+        else if (val instanceof MOONumber)
+            return new MOOString(((MOONumber)val).getValue().toString());
+        else if (val instanceof MOOObjRef)
+            return new MOOString("#"+((MOOObjRef)val).getValue());
+        else
+            throw new MOOException("Cannot convert "+val.getClass().getName()+" to object");
+    }
 /*
 Function: str toliteral (value)
     Returns a string containing a MOO literal expression that, when evaluated, would be equal to value.

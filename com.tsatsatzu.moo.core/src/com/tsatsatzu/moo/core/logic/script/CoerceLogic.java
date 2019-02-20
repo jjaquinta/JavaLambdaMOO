@@ -97,6 +97,8 @@ public class CoerceLogic
     }
     public static Object toJavascript(MOOValue val)
     {
+        if (val == null)
+            return null;
         if (val instanceof MOOList)
         {
             MOOList list = (MOOList)val;

@@ -3,7 +3,11 @@ package com.tsatsatzu.moo.core.data.val;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.data.MOOValue;
+
+import jo.audio.util.JSONUtils;
 
 public class MOOMap extends MOOValue
 {
@@ -15,6 +19,34 @@ public class MOOMap extends MOOValue
     }
     
     // utilities
+
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("type", "map");
+        JSONObject value = new JSONObject();
+        json.put("value", value);
+        for (String key : mValue.keySet())
+        {
+            MOOValue v = mValue.get(key);
+            value.put(key, v.toJSON());
+        }
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        JSONObject values = JSONUtils.getObject(json, "value");
+        for (String key : values.keySet())
+        {
+            JSONObject v = (JSONObject)values.get(key);
+            MOOValue value = MOOValue.newFromJSON(v);
+            mValue.put(key, value);
+        }
+    }
+
     @Override
     public String toString()
     {

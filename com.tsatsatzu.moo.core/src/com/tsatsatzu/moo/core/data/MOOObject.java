@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.api.MOOObjectAPI;
 import com.tsatsatzu.moo.core.data.val.MOOList;
 import com.tsatsatzu.moo.core.data.val.MOOMap;
@@ -15,7 +18,11 @@ import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.data.val.MOOString;
 import com.tsatsatzu.moo.core.logic.MOODbLogic;
 
-public class MOOObject
+import jo.audio.util.IJSONAble;
+import jo.audio.util.JSONUtils;
+import jo.util.utils.obj.IntegerUtils;
+
+public class MOOObject implements IJSONAble
 {
     public static final String PROP_NAME = "name";
     public static final String PROP_OWNER = "owner";
@@ -92,6 +99,59 @@ public class MOOObject
     }
     
     // utilities
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("oid", mOID);
+        if (mParent != null)
+            json.put("parent", mParent);
+        JSONArray children = new JSONArray();
+        json.put("children", children);
+        for (Integer ch : mChildren)
+            children.add(ch);
+        json.put("player", mPlayer);
+        JSONObject properties = new JSONObject();
+        json.put("properties", properties);
+        for (String key : mProperties.keySet())
+            properties.put(key, mProperties.get(key).toJSON());
+        JSONArray verbs = new JSONArray();
+        json.put("verbs", verbs);
+        for (MOOVerb verb : mVerbs)
+            verbs.add(verb.toJSON());
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        mOID = JSONUtils.getInt(json, "oid");
+        if (json.containsKey("parent"))
+            mParent = JSONUtils.getInt(json, "parent");
+        JSONArray jchildren = JSONUtils.getArray(json, "children");
+        for (int i = 0; i < jchildren.size(); i++)
+            mChildren.add(IntegerUtils.parseInt(jchildren.get(i)));
+        mPlayer = JSONUtils.getBoolean(json, "player");
+        JSONObject jproperties = JSONUtils.getObject(json, "properties");
+        for (String key : jproperties.keySet())
+        {
+            JSONObject jproperty = (JSONObject)jproperties.get(key);
+            MOOProperty property = new MOOProperty();
+            property.fromJSON(jproperty);
+            mProperties.put(key, property);
+        }
+        JSONArray jverbs = JSONUtils.getArray(json, "verbs");
+        for (int i = 0; i < jverbs.size(); i++)
+        {
+            JSONObject jverb = (JSONObject)jverbs.get(i);
+            MOOVerb verb = new MOOVerb();
+            verb.fromJSON(jverb);
+            mVerbs.add(verb);
+        }
+    }
+
     @Override
     public boolean equals(Object obj)
     {

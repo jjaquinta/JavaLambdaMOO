@@ -1,8 +1,13 @@
 package com.tsatsatzu.moo.core.data;
 
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 
-public class MOOProperty
+import jo.audio.util.IJSONAble;
+import jo.audio.util.JSONUtils;
+
+public class MOOProperty implements IJSONAble
 {
     private String      mName;
     private boolean     mClear;
@@ -29,6 +34,35 @@ public class MOOProperty
         mWrite = prop.mWrite;
         mChange = prop.mChange;
     }
+    // utilities
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("name", mName);
+        json.put("clear", mClear);
+        json.put("definition", mDefinition);
+        json.put("value", MOOValue.toJSON(mValue));
+        json.put("owner", mOwner.getValue());
+        json.put("read", mRead);
+        json.put("write", mWrite);
+        json.put("change", mChange);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        mName = JSONUtils.getString(json, "name");
+        mClear = JSONUtils.getBoolean(json, "clear");
+        mDefinition = JSONUtils.getBoolean(json, "definition");
+        mValue = MOOValue.newFromJSON(JSONUtils.getObject(json, "value"));
+        mOwner = new MOOObjRef(JSONUtils.getInt(json, "owner"));
+        mRead = JSONUtils.getBoolean(json, "read");
+        mWrite = JSONUtils.getBoolean(json, "write");
+        mChange = JSONUtils.getBoolean(json, "change");
+    }
+
     
     // gettters and setters
     

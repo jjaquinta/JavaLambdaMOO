@@ -286,6 +286,10 @@ public class MOOScriptLogic
         props.put("E_INVARG", 13); // Invalid argument
         props.put("E_QUOTA", 14); // Resource limit exceeded
         props.put("E_FLOAT", 15); // Floating-point arithmetic error
+        props.put("STR", 2); // String
+        props.put("NUM", 0); // Number
+        props.put("OBJ", 1); // Object
+        props.put("LIST", 4); // List
     }
     
     private static void pushScriptStack(MOOStackElement ele)

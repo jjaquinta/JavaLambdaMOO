@@ -1,6 +1,10 @@
 package com.tsatsatzu.moo.core.data.val;
 
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.data.MOOValue;
+
+import jo.util.utils.obj.IntegerUtils;
 
 public class MOONumber extends MOOValue
 {
@@ -26,6 +30,22 @@ public class MOONumber extends MOOValue
     }
     
     // utilities
+
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("type", "num");
+        json.put("value", mValue);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        mValue = IntegerUtils.parseInt(json.get("value"));
+    }
+
     @Override
     public String toString()
     {

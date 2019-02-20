@@ -3,7 +3,12 @@ package com.tsatsatzu.moo.core.data.val;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.data.MOOValue;
+
+import jo.audio.util.JSONUtils;
 
 public class MOOList extends MOOValue
 {
@@ -15,6 +20,32 @@ public class MOOList extends MOOValue
     }
     
     // utilities
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("type", "list");
+        JSONArray value = new JSONArray();
+        json.put("value", value);
+        for (MOOValue v : mValue)
+            value.add(v.toJSON());
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        JSONArray values = JSONUtils.getArray(json, "value");
+        for (int i = 0; i < values.size(); i++)
+        {
+            JSONObject v = (JSONObject)values.get(i);
+            MOOValue value = MOOValue.newFromJSON(v);
+            mValue.add(value);
+        }
+    }
+
     @Override
     public String toString()
     {

@@ -5,7 +5,9 @@ import javax.script.ScriptEngine;
 import com.tsatsatzu.moo.core.api.MOOConvAPI;
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOValue;
+import com.tsatsatzu.moo.core.data.val.MOONumber;
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
+import com.tsatsatzu.moo.core.data.val.MOOString;
 import com.tsatsatzu.moo.core.logic.script.CoerceLogic;
 
 import jdk.nashorn.api.scripting.JSObject;
@@ -23,8 +25,30 @@ public class FuncConvAPI
                 return object;
             }
         }; 
+        JSObject tostr = new JSFuncObject() {
+            @Override
+            public MOOValue call(Object... args) throws MOOException
+            {
+                MOOValue val = CoerceLogic.toValue(args[0]);
+                MOOString object = MOOConvAPI.tostr(val);
+                return object;
+            }
+        }; 
+        JSObject typeof = new JSFuncObject() {
+            @Override
+            public MOOValue call(Object... args) throws MOOException
+            {
+                MOOValue val = CoerceLogic.toValue(args[0]);
+                MOONumber object = MOOConvAPI.typeof(val);
+                return object;
+            }
+        }; 
         engine.put("toobj", toobj);
         engine.put("to_obj", toobj);
         engine.put("toObj", toobj);
+        engine.put("tostr", tostr);
+        engine.put("to_str", tostr);
+        engine.put("toStr", tostr);
+        engine.put("typof", typeof);
     }
 }

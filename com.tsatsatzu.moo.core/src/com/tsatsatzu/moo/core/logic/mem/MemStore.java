@@ -1,16 +1,27 @@
 package com.tsatsatzu.moo.core.logic.mem;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOObject;
 import com.tsatsatzu.moo.core.logic.IMOOStore;
+import com.tsatsatzu.moo.core.logic.MOOOpsLogic;
 
-public class MemStore implements IMOOStore
+import jo.audio.util.IJSONAble;
+import jo.audio.util.JSONUtils;
+import jo.util.utils.obj.IntegerUtils;
+
+public class MemStore implements IMOOStore, IJSONAble
 {
+    private File    mDiskImage;
     private int mMaxObject;
     private Map<Integer, MOOObject> mCache = new HashMap<>();
     private List<Integer> mPlayers = new ArrayList<>();
@@ -18,13 +29,95 @@ public class MemStore implements IMOOStore
     @Override
     public void initialize() throws MOOException
     {
-        // TODO Auto-generated method stub
+        String diskImageName = System.getProperty("moo.store.mem.disk");
+        if (diskImageName != null)
+        {
+            mDiskImage = new File(diskImageName);
+            if (mDiskImage != null)
+                loadFromDisk();
+        }
+    }
+    
+    private void loadFromDisk()
+    {
+        if (mDiskImage == null)
+            return;
+        try
+        {
+            JSONObject json = JSONUtils.readJSON(mDiskImage);
+            fromJSON(json);
+        }
+        catch (IOException e)
+        {
+            MOOOpsLogic.log("Error reading from "+mDiskImage, e);
+        }
+    }
+    
+    private int saveToDisk()
+    {
+        if (mDiskImage == null)
+            return 1;
+        JSONObject json = toJSON();
+        try
+        {
+            JSONUtils.writeJSON(mDiskImage, json);
+            return 1;
+        }
+        catch (IOException e)
+        {
+            MOOOpsLogic.log("Error saving to "+mDiskImage, e);
+            return 0;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("maxObject", mMaxObject);
+        JSONObject cache = new JSONObject();
+        json.put("cache", cache);
+        for (Integer oid : mCache.keySet())
+        {
+            MOOObject obj = mCache.get(oid);
+            json.put(oid.toString(), obj.toJSON());
+        }
+        JSONArray players = new JSONArray();
+        json.put("players", players);
+        for (Integer player : mPlayers)
+            players.add(player);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        JSONObject cache = JSONUtils.getObject(json, "cache");
+        mMaxObject = 0;
+        mPlayers.clear();
+        for (String key : cache.keySet())
+        {
+            JSONObject o = (JSONObject)cache.get(key);
+            int oid = IntegerUtils.parseInt(key);
+            MOOObject obj = new MOOObject();
+            obj.fromJSON(o);
+            mCache.put(oid, obj);
+            mMaxObject = Math.max(mMaxObject, oid);
+            if (obj.isPlayer())
+                mPlayers.add(oid);
+        }
     }
 
     @Override
     public void shutdown() throws MOOException
     {
-        // TODO Auto-generated method stub
+    }
+    
+    @Override
+    public int checkpoint()
+    {        
+        return saveToDisk();
     }
 
     @Override
@@ -50,7 +143,7 @@ public class MemStore implements IMOOStore
     }
 
     @Override
-    public void save(int oid)
+    public void markDirty(int oid)
     {
         MOOObject inst = mCache.get(oid);
         if (inst.isPlayer())
@@ -103,6 +196,12 @@ public class MemStore implements IMOOStore
     void setCache(Map<Integer, MOOObject> cache)
     {
         mCache = cache;
+    }
+
+    @Override
+    public String getServerVersion()
+    {
+        return "MemStore 1.0";
     }
 
 }

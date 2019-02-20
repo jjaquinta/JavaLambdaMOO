@@ -3,11 +3,16 @@ package com.tsatsatzu.moo.core.data;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 
+import jo.audio.util.IJSONAble;
+import jo.audio.util.JSONUtils;
 import jo.util.utils.obj.StringUtils;
 
-public class MOOVerb
+public class MOOVerb implements IJSONAble
 {
     public static final int DO_NONE = 0;
     public static final int DO_ANY = 1;
@@ -46,6 +51,46 @@ public class MOOVerb
     private List<String> mScript;
 
     // utilities
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        json.put("name", mName);
+        json.put("owner", mOwner.getValue());
+        json.put("read", mRead);
+        json.put("write", mWrite);
+        json.put("execute", mExecute);
+        json.put("directObjectType", mDirectObjectType);
+        json.put("prepositionType", mPrepositionType);
+        json.put("indirectObjectType", mIndirectObjectType);
+        JSONArray jscript = new JSONArray();
+        json.put("script", jscript);
+        for (String line: mScript)
+            jscript.add(line);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json)
+    {
+        mName = JSONUtils.getString(json, "name");
+        mOwner = new MOOObjRef(JSONUtils.getInt(json, "owner"));
+        mRead = JSONUtils.getBoolean(json, "read");
+        mWrite = JSONUtils.getBoolean(json, "write");
+        mExecute = JSONUtils.getBoolean(json, "execute");
+        mDirectObjectType = JSONUtils.getInt(json, "directObjectType");
+        mPrepositionType = JSONUtils.getInt(json, "prepositionType");
+        mIndirectObjectType = JSONUtils.getInt(json, "indirectObjectType");
+        JSONArray jscript = JSONUtils.getArray(json, "script");
+        for (int i = 0; i < jscript.size(); i++)
+        {
+            String line = (String)jscript.get(i);
+            mScript.add(line);
+        }
+    }
+
     public static String objTypeToStr(int type)
     {
         switch (type)
