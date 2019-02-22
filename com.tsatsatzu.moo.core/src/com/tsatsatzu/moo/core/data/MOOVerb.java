@@ -1,5 +1,6 @@
 package com.tsatsatzu.moo.core.data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -65,10 +66,13 @@ public class MOOVerb implements IJSONAble
         json.put("directObjectType", mDirectObjectType);
         json.put("prepositionType", mPrepositionType);
         json.put("indirectObjectType", mIndirectObjectType);
-        JSONArray jscript = new JSONArray();
-        json.put("script", jscript);
-        for (String line: mScript)
-            jscript.add(line);
+        if (mScript != null)
+        {
+             JSONArray jscript = new JSONArray();
+            json.put("script", jscript);
+            for (String line: mScript)
+                jscript.add(line);
+        }
         return json;
     }
 
@@ -84,10 +88,14 @@ public class MOOVerb implements IJSONAble
         mPrepositionType = JSONUtils.getInt(json, "prepositionType");
         mIndirectObjectType = JSONUtils.getInt(json, "indirectObjectType");
         JSONArray jscript = JSONUtils.getArray(json, "script");
-        for (int i = 0; i < jscript.size(); i++)
+        if (jscript != null)
         {
-            String line = (String)jscript.get(i);
-            mScript.add(line);
+            mScript = new ArrayList<>();
+            for (int i = 0; i < jscript.size(); i++)
+            {
+                String line = (String)jscript.get(i);
+                mScript.add(line);
+            }
         }
     }
 

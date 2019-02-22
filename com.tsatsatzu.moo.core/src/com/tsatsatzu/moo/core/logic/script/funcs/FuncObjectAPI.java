@@ -23,7 +23,7 @@ public class FuncObjectAPI
             public MOOValue call(Object... args) throws MOOException
             {
                 MOOObjRef parent = CoerceLogic.toObjRef(args[0]);
-                MOOObjRef owner = (args.length > 0) ? CoerceLogic.toObjRef(args[1]) : MOOProgrammerLogic.getProgrammerRef();
+                MOOObjRef owner = (args.length > 1) ? CoerceLogic.toObjRef(args[1]) : MOOProgrammerLogic.getProgrammerRef();
                 MOOObjRef ret = MOOObjectAPI.create(parent, owner);
                 return ret;
             }

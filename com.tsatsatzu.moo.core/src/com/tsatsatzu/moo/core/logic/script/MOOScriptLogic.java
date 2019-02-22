@@ -60,20 +60,28 @@ public class MOOScriptLogic
         }
         return mEngines.get(language);
     }
-    public static MOOValue executeScript(MOOObjRef programmer, MOOObject obj, String verbName, Object... args) throws MOOException
+    public static MOOValue executeScript(MOOObjRef player, MOOObject obj, String verbName, Object... args) throws MOOException
     {
-        return doExecuteVerb(programmer, obj,  verbName, false, null, args);
+        return doExecuteVerb(player, obj,  verbName, false, null, args);
     }
-    public static MOOValue executeScriptMaybe(MOOObjRef programmer, MOOObject obj, String verbName, Object... args) throws MOOException
+    public static MOOValue executeScriptMaybe(MOOObjRef player, MOOObject obj, String verbName, Object... args) throws MOOException
     {
-        return doExecuteVerb(programmer, obj,  verbName, true, null, args);
+        return doExecuteVerb(player, obj,  verbName, true, null, args);
     }
-    public static MOOValue executeScript(MOOObjRef programmer, MOOObject obj, String verbName, Map<String,Object> props, Object... args) throws MOOException
+    public static MOOValue executeScript(MOOObjRef player, MOOObject obj, String verbName, Map<String,Object> props, Object... args) throws MOOException
     {
-        return doExecuteVerb(programmer, obj,  verbName, false, props, args);
+        return doExecuteVerb(player, obj, verbName, false, props, args);
     }
-    private static MOOValue doExecuteVerb(MOOObjRef programmer, MOOObject obj, String verbName, boolean gracefullyDegrade, Map<String,Object> props, Object... args) throws MOOException
+    private static MOOValue doExecuteVerb(MOOObjRef player, MOOObject obj, String verbName, boolean gracefullyDegrade, Map<String,Object> props, Object... args) throws MOOException
     {
+        if (player == null)
+        {
+            MOOStackElement mse = peekScriptStack();
+            if (mse == null)
+                throw new MOOException("No player to be found!");
+            player = new MOOObjRef(mse.getPlayer());
+        }
+        MOOObjRef programmer = obj.getOwner();
         MOOVerb verb = obj.getVerb(verbName);
         if (verb == null)
             if (gracefullyDegrade)
@@ -87,8 +95,8 @@ public class MOOScriptLogic
         props.put("args", argv);
         props.put("_this", new MOOObjRef(obj));
         props.put("verb", new MOOString(verbName));
-        props.put("caller", MOOObjRef.NONE);
-        props.put("player", new MOOObjRef(programmer));
+        props.put("_caller", MOOObjRef.NONE);
+        props.put("_player", player);
         MOOStackElement st = new MOOStackElement();
         st.setThis(obj.getOID());
         st.setVerbName(verbName);
@@ -97,9 +105,10 @@ public class MOOScriptLogic
         st.setPlayer(programmer.getValue());
         st.setLineNumber(0);
         pushScriptStack(st);
+        MOOProgrammerLogic.pushProgrammer(programmer);
         try
         {
-            return executeScript(programmer, script, props);
+            return executeScript(script, props);
         }
         catch (MOOException e)
         {
@@ -107,6 +116,7 @@ public class MOOScriptLogic
         }
         finally
         {
+            MOOProgrammerLogic.popProgrammer();
             popScriptStack();
         }
     }
@@ -118,9 +128,9 @@ public class MOOScriptLogic
         MOOObjRef player = cmd.getPlayer().toRef();
         String script = cmd.getCmdVerb().getScriptText();
         Map<String,Object> props = new HashMap<>();
-        props.put("player", player);
+        props.put("_player", player);
         props.put("_this", cmd.getCmdObj());
-        props.put("caller", player);
+        props.put("_caller", player);
         props.put("verb", new MOOString(cmd.getVerbStr()));
         props.put("argstr", new MOOString(cmd.getArgstr()));        
         props.put("args", args);
@@ -129,21 +139,28 @@ public class MOOScriptLogic
         props.put("prepstr", new MOOString(cmd.getPrepStr()));
         props.put("iobjstr", new MOOString(cmd.getIObjStr()));
         props.put("iobj", cmd.getIObj());
-        return executeScript(player, script, props);
+        MOOProgrammerLogic.pushProgrammer(player);
+        try
+        {
+            return executeScript(script, props);
+        }
+        finally
+        {
+            MOOProgrammerLogic.popProgrammer();
+        }
     }
-    public static MOOValue executeScript(MOOObjRef programmer, String script, Object... args) throws MOOException
+    public static MOOValue executeScript(String script, Object... args) throws MOOException
     {
         MOOList argv = (MOOList)CoerceLogic.toValue(args);
         Map<String,Object> props = new HashMap<>();
         props.put("args", argv);
-        return executeScript(programmer, script, props);
+        return executeScript(script, props);
     }
-    public static MOOValue executeScript(MOOObjRef programmer, String script, Map<String,Object> props) throws MOOException
+    public static MOOValue executeScript(String script, Map<String,Object> props) throws MOOException
     {
         String language = getLanguage(script);
         script = preProcess(script);
         addConstants(props);
-        MOOProgrammerLogic.pushProgrammer(programmer);
         try
         {
             ScriptEngine e = getEngine(language);
@@ -155,10 +172,6 @@ public class MOOScriptLogic
         catch (Exception e)
         {
             throw new MOOException("Error executing script", e);
-        }
-        finally
-        {
-            MOOProgrammerLogic.popProgrammer();
         }
     }
 
@@ -312,6 +325,19 @@ public class MOOScriptLogic
             if (s.size() == 0)
                 mScriptStacks.remove(Thread.currentThread());
         }
+    }
+    
+    private static MOOStackElement peekScriptStack()
+    {
+        Stack<MOOStackElement> s = mScriptStacks.get(Thread.currentThread());
+        if (s != null)
+        {
+            if (s.size() == 0)
+                return null;
+            else
+                return s.peek();
+        }
+        return null;
     }
     
     public static MOOStackElement[] getScriptStack()

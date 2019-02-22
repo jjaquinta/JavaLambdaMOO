@@ -40,16 +40,23 @@ public class MemStore implements IMOOStore, IJSONAble
     
     private void loadFromDisk()
     {
-        if (mDiskImage == null)
+        loadFromDisk(mDiskImage);
+    }
+    
+    protected void loadFromDisk(File diskImage)
+    {
+        if (diskImage == null)
+            return;
+        if (!diskImage.exists())
             return;
         try
         {
-            JSONObject json = JSONUtils.readJSON(mDiskImage);
+            JSONObject json = JSONUtils.readJSON(diskImage);
             fromJSON(json);
         }
         catch (IOException e)
         {
-            MOOOpsLogic.log("Error reading from "+mDiskImage, e);
+            MOOOpsLogic.log("Error reading from "+diskImage, e);
         }
     }
     
@@ -81,7 +88,7 @@ public class MemStore implements IMOOStore, IJSONAble
         for (Integer oid : mCache.keySet())
         {
             MOOObject obj = mCache.get(oid);
-            json.put(oid.toString(), obj.toJSON());
+            cache.put(oid.toString(), obj.toJSON());
         }
         JSONArray players = new JSONArray();
         json.put("players", players);

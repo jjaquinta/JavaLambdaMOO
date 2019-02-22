@@ -21,7 +21,7 @@ public class ObjectAPITest extends MinimalDBBase
     @Test
     public void testCreate() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "create(#2, #3);");
+        MOOValue ret = MOOScriptLogic.executeScript("create(#2, #3);");
         Assert.assertTrue("Script should return object", ret instanceof MOOObjRef);
         MOOObjRef newObjRef = (MOOObjRef)ret;
         Assert.assertEquals("Should next object", 4, newObjRef.getValue());
@@ -34,31 +34,34 @@ public class ObjectAPITest extends MinimalDBBase
     {
         MOOObjRef firstRoom = new MOOObjRef(2);
         MOOObjRef secondRoom = MOOObjectAPI.create(firstRoom, new MOOObjRef(mProgrammer));
-        MOOScriptLogic.executeScript(mProgrammer, "chparent(#4, #3);");
+        MOOScriptLogic.executeScript("chparent(#4, #3);");
         MOOObject newObj = MOODbLogic.get(secondRoom);
         Assert.assertEquals("Unexpected parent", 3, newObj.getParent().intValue());
+        MOOObject room = MOODbLogic.get(3);
+        Assert.assertEquals("Unexpected number of children", 1, room.getChildren().size());
+        Assert.assertEquals("Unexpected child", 4, room.getChildren().get(0).intValue());
     }
     @Test
     public void testValid() throws MOOException
     {
-        MOOValue ret1 = MOOScriptLogic.executeScript(mProgrammer, "valid(#3);");
+        MOOValue ret1 = MOOScriptLogic.executeScript("valid(#3);");
         Assert.assertTrue("Script should return number", ret1 instanceof MOONumber);
         Assert.assertTrue("Script should return true", ((MOONumber)ret1).toBoolean());
-        MOOValue ret2 = MOOScriptLogic.executeScript(mProgrammer, "valid(#4);");
+        MOOValue ret2 = MOOScriptLogic.executeScript("valid(#4);");
         Assert.assertTrue("Script should return number", ret2 instanceof MOONumber);
         Assert.assertFalse("Script should return false", ((MOONumber)ret2).toBoolean());
     }
     @Test
     public void testParent() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "parent(#3);");
+        MOOValue ret = MOOScriptLogic.executeScript("parent(#3);");
         Assert.assertTrue("Script should return number", ret instanceof MOOObjRef);
         Assert.assertEquals("Script should return true", 1, ((MOOObjRef)ret).getValue());
     }
     @Test
     public void testChildren() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "children(#1);");
+        MOOValue ret = MOOScriptLogic.executeScript("children(#1);");
         Assert.assertTrue("Script should return list", ret instanceof MOOList);
         Assert.assertEquals("Script should return three items in list", 3, ((MOOList)ret).size());
     }
@@ -66,13 +69,13 @@ public class ObjectAPITest extends MinimalDBBase
     public void testRecycle() throws MOOException
     {
         Assert.assertNotNull("Object should exist", MOODbLogic.get(3));
-        MOOScriptLogic.executeScript(mProgrammer, "recycle(#3);");
+        MOOScriptLogic.executeScript("recycle(#3);");
         Assert.assertNull("Object should no longer exist", MOODbLogic.get(3));
     }
     @Test
     public void testPassAround() throws MOOException
     {
-        MOOScriptLogic.executeScript(mProgrammer, "var x = create(#2, #3); recycle(x);");
+        MOOScriptLogic.executeScript("var x = create(#2, #3); recycle(x);");
         Assert.assertNull("Object should be gone", MOODbLogic.get(4));
     }
     @Test
@@ -93,7 +96,7 @@ public class ObjectAPITest extends MinimalDBBase
         code.add("true;");
         MOOVerbAPI.set_verb_code(firstRoom, name, code);
         MOOObjectAPI.create(firstRoom, new MOOObjRef(mProgrammer));
-        MOOScriptLogic.executeScript(mProgrammer, "move(#3, #4);");
+        MOOScriptLogic.executeScript("move(#3, #4);");
         MOOObject player = MOODbLogic.get(3);
         Assert.assertEquals("Should be in new room", 4, player.getLocation().getValue());
     }

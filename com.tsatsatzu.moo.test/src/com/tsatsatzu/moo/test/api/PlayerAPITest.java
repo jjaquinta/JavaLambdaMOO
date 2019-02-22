@@ -15,7 +15,7 @@ public class PlayerAPITest extends MinimalDBBase
     @Test
     public void testPlayers() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "players();");
+        MOOValue ret = MOOScriptLogic.executeScript("players();");
         Assert.assertTrue("Script should return number", ret instanceof MOOList);
         MOOList players = (MOOList)ret;
         Assert.assertEquals("Should be 1 player", 1, players.size());
@@ -27,7 +27,7 @@ public class PlayerAPITest extends MinimalDBBase
     @Test
     public void testIsPlayer() throws MOOException
     {
-        MOOValue ret1 = MOOScriptLogic.executeScript(mProgrammer, "is_player(#3);");
+        MOOValue ret1 = MOOScriptLogic.executeScript("is_player(#3);");
         Assert.assertTrue("Script should return number", ret1 instanceof MOONumber);
         Assert.assertNotEquals("Should not be false", 0, ((MOONumber)ret1).getValue());
     }
@@ -35,7 +35,7 @@ public class PlayerAPITest extends MinimalDBBase
     @Test
     public void testIsNotPlayer() throws MOOException
     {
-        MOOValue ret1 = MOOScriptLogic.executeScript(mProgrammer, "is_player(#1);");
+        MOOValue ret1 = MOOScriptLogic.executeScript("is_player(#1);");
         Assert.assertTrue("Script should return number", ret1 instanceof MOONumber);
         Assert.assertEquals("Should be false", 0, ((MOONumber)ret1).getValue());
     }
@@ -43,7 +43,7 @@ public class PlayerAPITest extends MinimalDBBase
     @Test
     public void testSetPlayer() throws MOOException
     {
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "set_player_flag(#3, true);");
+        MOOValue ret = MOOScriptLogic.executeScript("set_player_flag(#3, true);");
         Assert.assertNull("Empty script should return null", ret);
     }
 

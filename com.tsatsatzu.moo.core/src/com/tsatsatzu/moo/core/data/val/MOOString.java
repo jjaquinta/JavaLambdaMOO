@@ -25,7 +25,7 @@ public class MOOString extends MOOValue
     public JSONObject toJSON()
     {
         JSONObject json = new JSONObject();
-        json.put("type", "num");
+        json.put("type", "str");
         json.put("value", mValue);
         return json;
     }
@@ -33,6 +33,8 @@ public class MOOString extends MOOValue
     @Override
     public void fromJSON(JSONObject json)
     {
+        if (!json.containsKey("value"))
+            System.out.println("Quack");
         mValue = json.get("value").toString();
     }
 

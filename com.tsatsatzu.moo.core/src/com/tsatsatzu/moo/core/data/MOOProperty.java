@@ -43,7 +43,8 @@ public class MOOProperty implements IJSONAble
         json.put("clear", mClear);
         json.put("definition", mDefinition);
         json.put("value", MOOValue.toJSON(mValue));
-        json.put("owner", mOwner.getValue());
+        if (mOwner != null)
+            json.put("owner", mOwner.getValue());
         json.put("read", mRead);
         json.put("write", mWrite);
         json.put("change", mChange);

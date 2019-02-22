@@ -3,7 +3,6 @@ package com.tsatsatzu.moo.core.logic.script;
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOObject;
 import com.tsatsatzu.moo.core.data.MOOValue;
-import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.logic.MOODbLogic;
 
 import jdk.nashorn.api.scripting.AbstractJSObject;
@@ -31,8 +30,7 @@ public class JSVerb extends AbstractJSObject
         try
         {
             MOOObject obj = MOODbLogic.get(mOID);
-            MOOObjRef owner = obj.getOwner();
-            MOOValue ret = MOOScriptLogic.executeScript(owner, obj, mVerbName, args);
+            MOOValue ret = MOOScriptLogic.executeScript(null, obj, mVerbName, args);
             return CoerceLogic.toJavascript(ret);
         }
         catch (MOOException e)

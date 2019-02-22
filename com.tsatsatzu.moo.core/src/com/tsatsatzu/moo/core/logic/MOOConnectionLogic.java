@@ -227,7 +227,7 @@ public class MOOConnectionLogic
             args[i] = st.nextToken();
         int maxBefore = MOOObjectAPI.max_object().getValue().intValue();
         MOOValue val = MOOScriptLogic.executeScript(conn.getPlayer(), h, "do_login_command", args);
-        if (val instanceof MOOObjRef)
+        if ((val instanceof MOOObjRef) && !((MOOObjRef)val).isNone())
         {
             MOOObject player = MOODbLogic.get((MOOObjRef)val);
             if (player.isPlayer())
@@ -313,7 +313,8 @@ public class MOOConnectionLogic
         conn.setProgramMode(false);
         try
         {
-            MOOValue val = MOOScriptLogic.executeScript(conn.getPlayer(), script);
+            MOOProgrammerLogic.pushProgrammer(conn.getPlayer());
+            MOOValue val = MOOScriptLogic.executeScript(script);
             if (val == null)
                 conn.println("Return: <null>");
             else
@@ -322,6 +323,10 @@ public class MOOConnectionLogic
         catch (MOOException e)
         {
             
+        }
+        finally 
+        {
+            MOOProgrammerLogic.popProgrammer();
         }
     }
 

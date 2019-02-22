@@ -37,7 +37,7 @@ public class ConnectionTests extends MinimalTelnetBase
         args.add("none");
         MOOVerbAPI.add_verb(room, info, args);
         MOOList code = new MOOList();
-        code.add("notify(player, \"WTF?\\n\", false);");
+        code.add("notify(_player, \"WTF?\\n\", false);");
         MOOVerbAPI.set_verb_code(room, name, code);
 
         connect();
@@ -61,7 +61,7 @@ public class ConnectionTests extends MinimalTelnetBase
         args.add("none");
         MOOVerbAPI.add_verb(obj, info, args);
         MOOList code = new MOOList();
-        code.add("notify(player, \"wobble\\n\", false);");
+        code.add("notify(_player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(obj, name, code);
 
         connect();
@@ -85,7 +85,7 @@ public class ConnectionTests extends MinimalTelnetBase
         args.add("none");
         MOOVerbAPI.add_verb(obj, info, args);
         MOOList code = new MOOList();
-        code.add("notify(player, \"wobble\\n\", false);");
+        code.add("notify(_player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(obj, name, code);
 
         connect();
@@ -127,7 +127,7 @@ public class ConnectionTests extends MinimalTelnetBase
         args2.add("none");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.add("notify(player, \"wobble\\n\", false);");
+        code2.add("notify(_player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();
@@ -168,7 +168,7 @@ public class ConnectionTests extends MinimalTelnetBase
         args2.add("none");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.add("notify(player, \"wobble\\n\", false);");
+        code2.add("notify(_player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();
@@ -210,7 +210,7 @@ public class ConnectionTests extends MinimalTelnetBase
         args2.add("this");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.add("notify(player, \"wobble\\n\", false);");
+        code2.add("notify(_player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();
@@ -251,7 +251,7 @@ public class ConnectionTests extends MinimalTelnetBase
         args2.add("this");
         MOOVerbAPI.add_verb(thing, info2, args2);
         MOOList code2 = new MOOList();
-        code2.add("notify(player, \"wobble\\n\", false);");
+        code2.add("notify(_player, \"wobble\\n\", false);");
         MOOVerbAPI.set_verb_code(thing, name2, code2);
 
         connect();

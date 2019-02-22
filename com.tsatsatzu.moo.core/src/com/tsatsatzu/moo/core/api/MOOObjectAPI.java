@@ -19,7 +19,6 @@ public class MOOObjectAPI
 {
     public static MOOProperty getProperty(MOOObject obj, String name) throws MOOException
     {
-        MOOObject programmer = MOOProgrammerLogic.getProgrammer();
         while (obj != null)
         {
             MOOProperty prop = obj.getProperties().get(name);
@@ -27,6 +26,7 @@ public class MOOObjectAPI
             {
                 if (MOOObject.DEFAULT_PROPS.contains(name))
                     return prop;
+                MOOObject programmer = MOOProgrammerLogic.getProgrammer();
                 if (programmer.isWizard())
                     return prop;
                 if (prop.isRead())
@@ -61,7 +61,7 @@ public class MOOObjectAPI
             ;
         else if (prop.isWrite())
             ;
-        else if (prop.getOwner().equals(programmer))
+        else if (programmer.equals(prop.getOwner()))
             ;
         else
             throw new MOOPermissionException("Programmer #"+programmer.getOID()+" does not have write permission on #"+obj.getOID());
@@ -210,7 +210,10 @@ parent/child hierarchy. In this case, all formerly inherited properties on objec
         object.setParent((parent == null) ? -1 : newParent.getValue());
         // propogate new properties
         if (parent != null)
+        {
+            parent.getChildren().add(object.getOID());
             inheritProperties(parent, object);
+        }
     }
     
     private static void inheritProperties(MOOObject parent, MOOObject object)
@@ -218,6 +221,7 @@ parent/child hierarchy. In this case, all formerly inherited properties on objec
         for (MOOProperty prop : parent.getProperties().values())
             if (!object.getProperties().containsKey(prop.getName()))
                 object.getProperties().put(prop.getName(), new MOOProperty(prop));
+        MOODbLogic.markDirty(object.getOID());
         for (Integer childRef : object.getChildren())
         {
             MOOObject child = MOODbLogic.get(childRef);

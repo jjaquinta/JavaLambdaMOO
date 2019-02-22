@@ -23,13 +23,13 @@ public class NetworkAPITest extends MinimalDBBase
         TestConnectionHandler conn = new TestConnectionHandler();
         MOOConnectionLogic.addConnectionHandler(conn);
         MOONetworkAPI.listen(new MOOObjRef(0), new MOOString("test://1"), MOONumber.TRUE);
-        MOOValue connected1 = MOOScriptLogic.executeScript(mProgrammer, "connected_players(true);");
+        MOOValue connected1 = MOOScriptLogic.executeScript("connected_players(true);");
         Assert.assertTrue("Should return List", connected1 instanceof MOOList);
         Assert.assertEquals("Should be no one connected", 0, ((MOOList)connected1).size());
         conn.startConnection();
         conn.write("xyzzy");
         conn.read();
-        MOOValue connected2 = MOOScriptLogic.executeScript(mProgrammer, "connected_players(true);");
+        MOOValue connected2 = MOOScriptLogic.executeScript("connected_players(true);");
         Assert.assertTrue("Should return List", connected2 instanceof MOOList);
         Assert.assertEquals("Should be one connected", 1, ((MOOList)connected2).size());
     }
@@ -56,7 +56,7 @@ public class NetworkAPITest extends MinimalDBBase
         catch (InterruptedException e)
         {
         }
-        MOOValue connected = MOOScriptLogic.executeScript(mProgrammer, "connected_seconds(#3);");
+        MOOValue connected = MOOScriptLogic.executeScript("connected_seconds(#3);");
         Assert.assertTrue("Should return Number", connected instanceof MOONumber);
         Assert.assertEquals("Should be connected 4 seconds", 4, ((MOONumber)connected).getValue());
     }
@@ -83,7 +83,7 @@ public class NetworkAPITest extends MinimalDBBase
         catch (InterruptedException e)
         {
         }
-        MOOValue connected = MOOScriptLogic.executeScript(mProgrammer, "idle_seconds(#3);");
+        MOOValue connected = MOOScriptLogic.executeScript("idle_seconds(#3);");
         Assert.assertTrue("Should return Number", connected instanceof MOONumber);
         Assert.assertEquals("Should be idle 2 seconds", 2, ((MOONumber)connected).getValue());
     }
@@ -96,7 +96,7 @@ public class NetworkAPITest extends MinimalDBBase
         conn.startConnection();
         conn.write("xyzzy");
         conn.read();
-        MOOScriptLogic.executeScript(mProgrammer, "notify(#3, 'hello', true);");
+        MOOScriptLogic.executeScript("notify(#3, 'hello', true);");
         String reply = conn.read();
         Assert.assertEquals("Should be no such command text", "hello", reply);
     }
@@ -111,7 +111,7 @@ public class NetworkAPITest extends MinimalDBBase
         conn.write("SUFFIX yzzyx");
         conn.write("xyzzy");
         conn.read();
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "output_delimiters(#3);");
+        MOOValue ret = MOOScriptLogic.executeScript("output_delimiters(#3);");
         Assert.assertTrue("Should return List", ret instanceof MOOList);
         Assert.assertEquals("Should be 2 items in list", 2, ((MOOList)ret).size());
         Assert.assertTrue("Item 1 should be string", ((MOOList)ret).get(0) instanceof MOOString);
@@ -130,7 +130,7 @@ public class NetworkAPITest extends MinimalDBBase
         conn.read();
         MOOList connected1 = MOONetworkAPI.connected_players(MOONumber.TRUE);
         Assert.assertEquals("Should be one connected", 1, connected1.size());
-        MOOScriptLogic.executeScript(mProgrammer, "boot_player(#3);");
+        MOOScriptLogic.executeScript("boot_player(#3);");
         try
         {
             Thread.sleep(500);
@@ -150,7 +150,7 @@ public class NetworkAPITest extends MinimalDBBase
         conn.startConnection();
         conn.write("xyzzy");
         conn.read();
-        MOOScriptLogic.executeScript(mProgrammer, "set_connection_option(#3, 'wibble', 'wobble');");
+        MOOScriptLogic.executeScript("set_connection_option(#3, 'wibble', 'wobble');");
         MOOValue ret = MOONetworkAPI.connection_option(new MOOObjRef(3), new MOOString("wibble"));
         Assert.assertTrue("Should return String", ret instanceof MOOString);
         Assert.assertEquals("Should be value we set", "wobble", ((MOOString)ret).getValue());
@@ -165,7 +165,7 @@ public class NetworkAPITest extends MinimalDBBase
         conn.write("xyzzy");
         conn.read();
         MOONetworkAPI.set_connection_option(new MOOObjRef(3), new MOOString("wibble"), new MOOString("wobble"));
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "connection_options(#3);");
+        MOOValue ret = MOOScriptLogic.executeScript("connection_options(#3);");
         Assert.assertTrue("Should return List", ret instanceof MOOList);
         Assert.assertEquals("Should be single item in list", 1, ((MOOList)ret).size());
         MOOValue first = ((MOOList)ret).get(0);
@@ -188,7 +188,7 @@ public class NetworkAPITest extends MinimalDBBase
         conn.write("xyzzy");
         conn.read();
         MOONetworkAPI.set_connection_option(new MOOObjRef(3), new MOOString("wibble"), new MOOString("wobble"));
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "connection_option(#3, 'wibble');");
+        MOOValue ret = MOOScriptLogic.executeScript("connection_option(#3, 'wibble');");
         Assert.assertTrue("Should return String", ret instanceof MOOString);
         Assert.assertEquals("Unexpected option value", "wobble", ((MOOString)ret).getValue());
     }
@@ -197,7 +197,7 @@ public class NetworkAPITest extends MinimalDBBase
     {
         TestConnectionHandler conn = new TestConnectionHandler();
         MOOConnectionLogic.addConnectionHandler(conn);
-        MOOScriptLogic.executeScript(mProgrammer, "listen(#0, 'test://1', true);");
+        MOOScriptLogic.executeScript("listen(#0, 'test://1', true);");
         conn.startConnection();
         conn.write("xyzzy");
         String huh = conn.read();
@@ -209,7 +209,7 @@ public class NetworkAPITest extends MinimalDBBase
         TestConnectionHandler conn = new TestConnectionHandler();
         MOOConnectionLogic.addConnectionHandler(conn);
         MOONetworkAPI.listen(new MOOObjRef(0), new MOOString("test://1"), MOONumber.TRUE);
-        MOOScriptLogic.executeScript(mProgrammer, "unlisten(1);");
+        MOOScriptLogic.executeScript("unlisten(1);");
         try
         {
             Thread.sleep(500);
@@ -226,7 +226,7 @@ public class NetworkAPITest extends MinimalDBBase
         TestConnectionHandler conn = new TestConnectionHandler();
         MOOConnectionLogic.addConnectionHandler(conn);
         MOONetworkAPI.listen(new MOOObjRef(0), new MOOString("test://1"), MOONumber.TRUE);
-        MOOValue ret = MOOScriptLogic.executeScript(mProgrammer, "listeners();");
+        MOOValue ret = MOOScriptLogic.executeScript("listeners();");
         Assert.assertTrue("Should return List", ret instanceof MOOList);
         Assert.assertEquals("Should be single item in list", 1, ((MOOList)ret).size());
         MOOValue first = ((MOOList)ret).get(0);

@@ -43,6 +43,8 @@ public class JSObjRef extends AbstractJSObject
     
     private boolean isProperty(String name)
     {
+        if (mOID < 0)
+            return false;
         return getObject().getProperties().containsKey(name);
     }
     
@@ -60,6 +62,10 @@ public class JSObjRef extends AbstractJSObject
     @Override
     public Object getMember(String name)
     {
+        if ("toString".equals(name) || "valueOf".equals(name))
+            return "#"+mOID;
+        if (mOID < 0)
+            return null;
         try
         {
             if (isProperty(name))
@@ -147,5 +153,15 @@ public class JSObjRef extends AbstractJSObject
         {
             throw new IllegalStateException(e);
         }
+    }
+    
+    @Override
+    public Object getDefaultValue(Class<?> hint)
+    {
+        if (hint == String.class)
+            return "#"+mOID;
+        else if (hint == Integer.class)
+            return mOID;
+        return super.getDefaultValue(hint);
     }
 }

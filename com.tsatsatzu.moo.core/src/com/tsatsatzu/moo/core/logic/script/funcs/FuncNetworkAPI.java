@@ -49,9 +49,21 @@ public class FuncNetworkAPI
             public MOOValue call(Object... args) throws MOOException
             {
                 MOOObjRef player = CoerceLogic.toObjRef(args[0]);
-                MOOString msg = CoerceLogic.toString(args[1]);
-                MOONumber noFlush = CoerceLogic.toNumber(args[2]);
-                MOONumber ret = MOONetworkAPI.notify(player, msg, noFlush);
+                MOOValue msg = CoerceLogic.toValue(args[1]);
+                MOONumber noFlush = (args.length > 2) ? CoerceLogic.toNumber(args[2]) : MOONumber.FALSE;
+                MOONumber ret = null;
+                if (msg instanceof MOOString)
+                    ret = MOONetworkAPI.notify(player, (MOOString)msg, noFlush);
+                else if (msg instanceof MOOList)
+                {
+                    MOOList list = (MOOList)msg;
+                    for (int i = 0; i < list.size(); i++)
+                    {
+                        MOOValue s = list.get(i);
+                        if (s instanceof MOOString)
+                            ret = MOONetworkAPI.notify(player, (MOOString)s, noFlush);
+                    }
+                }
                 return ret;
             }
         }; 
