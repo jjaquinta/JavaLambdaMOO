@@ -160,6 +160,7 @@ public class MOOScriptLogic
     {
         String language = getLanguage(script);
         script = preProcess(script);
+        //System.err.println(script);
         addConstants(props);
         try
         {
@@ -233,6 +234,12 @@ public class MOOScriptLogic
                         sb.append(ch);
                         state = 2;
                     }
+                    else if (ch == '/')
+                    {
+                        sb.append(ch);
+                        if (script.charAt(i+1) == '/')
+                            state = 3;
+                    }
                     else
                         sb.append(ch);
                     break;
@@ -263,6 +270,11 @@ public class MOOScriptLogic
                     }
                     else
                         sb.append(ch);
+                    break;
+                case 3:
+                    sb.append(ch);
+                    if (ch == '\n')
+                        state = 0;
                     break;
             }
         }

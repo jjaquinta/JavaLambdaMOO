@@ -7,6 +7,7 @@ import com.tsatsatzu.moo.core.data.val.MOOList;
 import com.tsatsatzu.moo.core.data.val.MOONumber;
 import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.data.val.MOOString;
+import com.tsatsatzu.moo.core.logic.MOOProgrammerLogic;
 import com.tsatsatzu.moo.core.logic.script.MOOScriptLogic;
 
 public class MOOTaskAPI
@@ -142,7 +143,10 @@ public class MOOTaskAPI
     */
     public static void set_task_perms(MOOObjRef who) throws MOOException
     {
-        throw new MOOException("Not implemented yet.");
+        if (!who.equals(MOOProgrammerLogic.getProgrammerRef()) && !MOOProgrammerLogic.getProgrammer().isWizard())
+            throw new MOOException("Can't set perms.");
+        MOOProgrammerLogic.popProgrammer();
+        MOOProgrammerLogic.pushProgrammer(who);
     }
     /*
     Function: obj caller_perms ()
@@ -152,7 +156,12 @@ public class MOOTaskAPI
     */
     public static MOOObjRef caller_perms() throws MOOException
     {
-        throw new MOOException("Not implemented yet.");
+        MOOObjRef ours = MOOProgrammerLogic.popProgrammer();
+        MOOObjRef caller = MOOProgrammerLogic.getProgrammerRef();
+        MOOProgrammerLogic.pushProgrammer(ours);
+        if (caller == null)
+            caller = MOOObjRef.NONE;
+        return caller;
     }
     /*
     Function: int ticks_left ()

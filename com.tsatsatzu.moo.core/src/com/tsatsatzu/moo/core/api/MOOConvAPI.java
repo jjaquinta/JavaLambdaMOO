@@ -1,5 +1,7 @@
 package com.tsatsatzu.moo.core.api;
 
+import java.util.Date;
+
 import com.tsatsatzu.moo.core.data.MOOException;
 import com.tsatsatzu.moo.core.data.MOOValue;
 import com.tsatsatzu.moo.core.data.val.MOOList;
@@ -60,6 +62,17 @@ public class MOOConvAPI
             return new MOOString(((MOONumber)val).getValue().toString());
         else if (val instanceof MOOObjRef)
             return new MOOString("#"+((MOOObjRef)val).getValue());
+        else if (val instanceof MOOList)
+        {
+            StringBuffer sb = new StringBuffer();
+            for (MOOValue v : ((MOOList)val).getValue())
+            {
+                if (sb.length() > 0)
+                    sb.append(" ");
+                sb.append(tostr(v).getValue());
+            }
+            return new MOOString(sb.toString());
+        }
         else
             throw new MOOException("Cannot convert "+val.getClass().getName()+" to object");
     }
@@ -89,6 +102,23 @@ Function: int tonum (value)
     toint(E_TYPE)      =>   1
 
 */
+    public static MOONumber toint(MOOValue val) throws MOOException
+    {
+        if (val instanceof MOOString)
+        {
+            String str = ((MOOString)val).getValue();
+            if (str.startsWith("#"))
+                return new MOONumber(IntegerUtils.parseInt(str.substring(1)));
+            else
+                return new MOONumber(IntegerUtils.parseInt(str));
+        }
+        else if (val instanceof MOONumber)
+            return new MOONumber(((MOONumber)val).getValue().intValue());
+        else if (val instanceof MOOObjRef)
+            return new MOONumber(((MOOObjRef)val).getValue());
+        else
+            throw new MOOException("Cannot convert "+val.getClass().getName()+" to object");
+    }
 /*
 Function: obj toobj (value)
     Converts the given MOO value into an object number and returns that object number. The conversions are very similar to those for toint() except that for strings, the number may be preceded by `#'.
@@ -145,4 +175,36 @@ Function: int value_bytes (value)
 Function: str value_hash (value)
     Returns the same string as string_hash(toliteral(value)); see the description of string_hash() for details.  
  */
+
+    /*
+    Function: int time ()
+    Returns the current time, represented as the number of seconds that have elapsed since midnight on 1 January 1970, Greenwich Mean Time. 
+    */
+    public static MOONumber time() throws MOOException
+    {
+        return new MOONumber((int)(System.currentTimeMillis()/1000L));
+    }
+    /*
+    Function: str ctime ([int time])
+    Interprets time as a time, using the same representation as given in the description of time(), above, and converts it into a 28-character, human-readable string in the following format:
+
+    Mon Aug 13 19:13:20 1990 PDT
+
+    If the current day of the month is less than 10, then an extra blank appears between the month and the day:
+
+    Mon Apr  1 14:10:43 1991 PST
+
+    If time is not provided, then the current time is used.
+
+    Note that ctime() interprets time for the local time zone of the computer on which the MOO server is running. 
+    */
+    public static MOOString ctime(MOONumber tick) throws MOOException
+    {
+        Date d;
+        if (tick != null)
+            d = new Date(tick.getValue().intValue()*1000L);
+        else
+            d = new Date();
+        return new MOOString(d.toString());
+    }
 }

@@ -140,6 +140,11 @@ public class MemStore implements IMOOStore, IJSONAble
         obj.setOID(++mMaxObject);
         obj.setParent(parentOid);
         mCache.put(obj.getOID(), obj);
+        if (parentOid >= 0)
+        {
+            MOOObject parent = mCache.get(parentOid);
+            parent.getChildren().add(obj.getOID());
+        }
         return obj;
     }
 

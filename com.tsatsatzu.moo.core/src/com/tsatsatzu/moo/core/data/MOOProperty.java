@@ -42,7 +42,8 @@ public class MOOProperty implements IJSONAble
         json.put("name", mName);
         json.put("clear", mClear);
         json.put("definition", mDefinition);
-        json.put("value", MOOValue.toJSON(mValue));
+        if (mValue != null)
+            json.put("value", MOOValue.toJSON(mValue));
         if (mOwner != null)
             json.put("owner", mOwner.getValue());
         json.put("read", mRead);
@@ -57,7 +58,8 @@ public class MOOProperty implements IJSONAble
         mName = JSONUtils.getString(json, "name");
         mClear = JSONUtils.getBoolean(json, "clear");
         mDefinition = JSONUtils.getBoolean(json, "definition");
-        mValue = MOOValue.newFromJSON(JSONUtils.getObject(json, "value"));
+        if (json.containsKey("value"))
+            mValue = MOOValue.newFromJSON(JSONUtils.getObject(json, "value"));
         mOwner = new MOOObjRef(JSONUtils.getInt(json, "owner"));
         mRead = JSONUtils.getBoolean(json, "read");
         mWrite = JSONUtils.getBoolean(json, "write");

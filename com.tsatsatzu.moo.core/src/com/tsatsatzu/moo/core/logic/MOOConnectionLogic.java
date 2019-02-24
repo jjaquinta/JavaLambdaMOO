@@ -245,7 +245,7 @@ public class MOOConnectionLogic
                             cmd = "user_reconnected";
                             break;
                         }
-                    MOOScriptLogic.executeScriptMaybe(conn.getPlayer(), h, cmd, player); 
+                    MOOScriptLogic.executeScriptMaybe(conn.getPlayer(), h, cmd, player.toRef()); 
                 }
             }
         }

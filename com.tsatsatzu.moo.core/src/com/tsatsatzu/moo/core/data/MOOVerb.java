@@ -136,7 +136,7 @@ public class MOOVerb implements IJSONAble
             case PREP_AS: return "as";
             case PREP_OFF: return "off/off of";
         }
-        throw new IllegalArgumentException("Unknown prep type="+type);
+        return "?"+type+"?";
     }
     
     public static int objStrToType(String str)
