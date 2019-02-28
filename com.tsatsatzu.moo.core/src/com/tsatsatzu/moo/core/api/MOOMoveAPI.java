@@ -53,13 +53,15 @@ public class MOOMoveAPI
         if (what == null)
             throw new MOOException("Invalid what="+whatRef);
         MOOObject where = MOODbLogic.get(whereRef);
+        System.out.println("Moving "+whatRef+" from "+what.getLocation()+" to "+whereRef+" as "+MOOProgrammerLogic.getProgrammerRef());
         MOOObject programmer = MOOProgrammerLogic.getProgrammer();
         if (!programmer.isWizard() && !what.getOwner().equals(programmer))
             throw new MOOException("You are not allowed to move ="+whatRef);
     
         if (where.hasVerb("accept"))
         {
-            MOOValue val = MOOScriptLogic.executeScript(programmer.toRef(), where, "accept", whatRef);
+            System.out.println("Calling accept");
+            MOOValue val = MOOScriptLogic.executeScript((MOOObjRef)null, where, "accept", whatRef);
             if ((val instanceof MOONumber) && !((MOONumber)val).toBoolean() && !programmer.isWizard())
                 throw new MOOException("Destination refuses move");
         }
@@ -78,7 +80,8 @@ public class MOOMoveAPI
             MOOObject whatParent = MOODbLogic.get(what.getLocation());
             whatParent.getChildren().remove((Integer)what.getOID());
             MOODbLogic.markDirty(whatParent.getOID());
-            MOOScriptLogic.executeScriptMaybe(programmer.toRef(), whatParent, "exitfunc", whatRef);
+            System.out.println("Calling exitfunc");
+            MOOScriptLogic.executeScriptMaybe((MOOObjRef)null, whatParent, "exitfunc", whatRef);
         }
         
         what.setLocation(whereRef.getValue());
@@ -86,6 +89,8 @@ public class MOOMoveAPI
         where.getContents().add(new MOONumber(what.getOID()));
         MOODbLogic.markDirty(where.getOID());
 
-        MOOScriptLogic.executeScriptMaybe(programmer.toRef(), where, "enterfunc", whatRef);
+        System.out.println("Calling enterfunc");
+        MOOScriptLogic.executeScriptMaybe((MOOObjRef)null, where, "enterfunc", whatRef);
+        System.out.println("Called enterfunc");
     }
 }

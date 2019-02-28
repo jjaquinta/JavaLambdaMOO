@@ -30,6 +30,16 @@ public class JSObjRef extends AbstractJSObject
     {
         mOID = obj.getValue();
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof JSObjRef)
+        {
+            return ((JSObjRef)obj).mOID == mOID;
+        }
+        return false;
+    }
     
     private MOOObject getObject()
     {
@@ -53,10 +63,17 @@ public class JSObjRef extends AbstractJSObject
         return getObject().getVerb(name) != null;
     }
     
+    private boolean isStatic(String name)
+    {
+        if ("equals".equals(name))
+            return true;
+        return false;
+    }
+    
     @Override
     public boolean hasMember(String name)
     {
-        return isProperty(name) || isVerb(name);
+        return isProperty(name) || isVerb(name) || isStatic(name);
     }
     
     @Override
@@ -66,6 +83,8 @@ public class JSObjRef extends AbstractJSObject
             return "#"+mOID;
         if (mOID < 0)
             return null;
+        if (isStatic(name))
+            return new JSStaticFunction(mOID, name);
         try
         {
             if (isProperty(name))
@@ -158,7 +177,7 @@ public class JSObjRef extends AbstractJSObject
     @Override
     public Object getDefaultValue(Class<?> hint)
     {
-        if (hint == String.class)
+        if ((hint == String.class) || (hint == null))
             return "#"+mOID;
         else if (hint == Integer.class)
             return mOID;

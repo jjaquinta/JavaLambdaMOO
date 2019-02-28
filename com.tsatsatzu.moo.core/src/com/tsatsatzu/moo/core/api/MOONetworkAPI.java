@@ -73,6 +73,7 @@ public class MOONetworkAPI
     */
     public static MOONumber notify(MOOObjRef ref, MOOString msg, MOONumber noFlush) throws MOOException
     {
+        System.out.println("MOONotify, ref="+ref+", msg="+msg);
         MOOObject programmer = MOOProgrammerLogic.getProgrammer();
         if (!MOOProgrammerLogic.getProgrammerRef().equals(ref) && !programmer.isWizard())
             throw new MOOException("You cannot write to that player");

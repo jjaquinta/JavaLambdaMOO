@@ -16,6 +16,8 @@ public class LoginTests extends VoiceDBBase
         mConnection.write("connect Goddess");
         String loggedIn = mConnection.read();
         Assert.assertEquals("Should be logged in message", "<s>Welcome back Goddess.</s>", loggedIn);
+        String room = mConnection.read();
+        Assert.assertEquals("Should be room description", "<s>This is an elegant foyeur of white marble.</s>", room);
     }
     @Test
     public void loginFail() throws Exception
@@ -36,6 +38,8 @@ public class LoginTests extends VoiceDBBase
         mConnection.write("create Amadan");
         String loggedIn = mConnection.read();
         Assert.assertEquals("Should be successful create message", "<s>Welcome to the game Amadan.</s>", loggedIn);
+        String room = mConnection.read();
+        Assert.assertEquals("Should be room description", "<s>This is an elegant foyeur of white marble.</s>", room);
     }
     @Test
     public void createExisting() throws Exception

@@ -158,6 +158,8 @@ public class MemStore implements IMOOStore, IJSONAble
     public void markDirty(int oid)
     {
         MOOObject inst = mCache.get(oid);
+        if (inst == null)
+            return;
         if (inst.isPlayer())
             mPlayers.add(inst.getOID());
         else if (mPlayers.contains(inst.getOID()))

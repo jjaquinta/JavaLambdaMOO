@@ -1,5 +1,7 @@
 package com.tsatsatzu.moo.core.data;
 
+import javax.script.ScriptContext;
+
 public class MOOStackElement
 {
     private int mThis;
@@ -8,6 +10,8 @@ public class MOOStackElement
     private int mVerbLoc;
     private int mPlayer;
     private int mLineNumber;
+    private ScriptContext mContext;
+    
     public int getThis()
     {
         return mThis;
@@ -55,6 +59,14 @@ public class MOOStackElement
     public void setLineNumber(int lineNumber)
     {
         mLineNumber = lineNumber;
+    }
+    public ScriptContext getContext()
+    {
+        return mContext;
+    }
+    public void setContext(ScriptContext context)
+    {
+        mContext = context;
     }
 
 }

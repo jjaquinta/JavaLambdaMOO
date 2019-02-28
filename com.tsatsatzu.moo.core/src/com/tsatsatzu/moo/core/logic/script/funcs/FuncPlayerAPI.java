@@ -38,6 +38,7 @@ public class FuncPlayerAPI
             @Override
             public MOOValue call(Object... args) throws MOOException
             {
+                mIsBooleanReturn = true;
                 MOOObjRef playerRef = CoerceLogic.toObjRef(args[0]);
                 MOONumber ret = MOOPlayerAPI.is_player(playerRef);
                 return ret;

@@ -136,7 +136,7 @@ decremented and stored back into the `ownership_quota' property as a part of the
                     created.getProperties().put(newProp.getName(), newProp);
                 }
         MOODbLogic.markDirty(created.getOID());
-        MOOScriptLogic.executeScriptMaybe(programmer.toRef(), created, "initialize");
+        MOOScriptLogic.executeScriptMaybe((MOOObjRef)null, created, "initialize");
         return new MOOObjRef(created);
     }
     

@@ -79,8 +79,16 @@ public class MOOScriptLogic
             MOOStackElement mse = peekScriptStack();
             if (mse == null)
                 throw new MOOException("No player to be found!");
-            player = new MOOObjRef(mse.getPlayer());
+            if (mse.getContext() != null)
+            {
+                Object p = mse.getContext().getAttribute("_player");
+                if (p instanceof JSObjRef)
+                    player = ((JSObjRef)p).getObjRef();
+            }
+            if (player == null)
+                player = new MOOObjRef(mse.getPlayer());
         }
+        System.out.println("Executing #"+obj.getOID()+":"+verbName+" as "+player);
         MOOObjRef programmer = obj.getOwner();
         MOOVerb verb = obj.getVerb(verbName);
         if (verb == null)
@@ -162,10 +170,13 @@ public class MOOScriptLogic
         script = preProcess(script);
         //System.err.println(script);
         addConstants(props);
+        MOOStackElement mse = peekScriptStack();
         try
         {
             ScriptEngine e = getEngine(language);
             ScriptContext c = addPropsToScope(e, props);
+            if (mse != null)
+                mse.setContext(c);
             Object ret = e.eval(script, c);
             MOOValue val = CoerceLogic.toValue(ret);
             return val;

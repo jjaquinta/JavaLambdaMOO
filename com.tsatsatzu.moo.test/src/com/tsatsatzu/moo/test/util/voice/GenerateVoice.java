@@ -146,8 +146,13 @@ public class GenerateVoice
                         "}",
                     "}",
                     "var newPlayer = create($player);",
+                    "set_player_flag(newPlayer, true);",
+                    "newPlayer.owner = newPlayer;",
                     "notify(_player, '<s>Welcome to the game '+playerName+'.</s>');",
-                    "move(newPlayer, $first_room);",
+                    "_player = newPlayer;",
+                    "print('Setting new player '+_player);",
+                    "move(_player, $first_room);",
+                    "print('Moved '+playerName+' to first room');",
                     "return newPlayer;",
                 "}",
                 "notify(_player, '<s>I don\\'t know that command.</s>');",
@@ -172,15 +177,19 @@ public class GenerateVoice
     };
     private static final String[] USER_CREATED = {
         "function userCreated() {",
+            "print('UserCreated');",
             "if (callers().length > 1) {",
+                "print('bad callers');",
                 "return;",
              "}",
              "if (toint(args[0]) < 0) {",
+                 "print('not actually logged in');",
                  "//not logged in user.  probably should do something clever here involving Carrot's no-spam hack.  --yduJ",
                  "return;",
              "}",
              "var user = args[0];",
              "set_task_perms(user);",
+             "print('Moving to room');",
              "move(user, $first_room);",
              "$first_room.announce('<s>'+_player.title()+' has connected.</a>');",
         "}",
@@ -221,6 +230,7 @@ public class GenerateVoice
             "doAnnounce();"};    
     private static final String[] ROOT_TELL = {
             "function doTell() {",
+                "print('ROOT.tell, _player='+_player);",
                 "_this.notify(tostr(args));",
             "}",
             "doTell();"};    
@@ -238,6 +248,7 @@ public class GenerateVoice
             "doTell();"};    
     private static final String[] ROOT_NOTIFY = {
             "function doNotify() {",
+                "print('ROOT.notify, _player='+_player);",
                 "if (is_player(_this)) {",
                     "notify(_this, tostr(args));",
                 "}",
@@ -245,7 +256,7 @@ public class GenerateVoice
             "doNotify();"};    
     private static final String[] ROOT_LOOK_SELF = {
             "function doLookSelf() {",
-                "desc = _this.description();",
+                "desc = _this.getDescription();",
                 "if (desc)",
                     "_player.tell_lines(desc);",
                 "else",
@@ -281,7 +292,7 @@ public class GenerateVoice
         setVerbCode(mRoot, "notify", ROOT_NOTIFY);
         setVerbCode(mRoot, "look_self", ROOT_LOOK_SELF);
         setVerbCode(mRoot, "title", ROOT_TITLE);
-        setVerbCode(mRoot, "description", ROOT_DESCRIPTION);
+        setVerbCode(mRoot, "getDescription", ROOT_DESCRIPTION);
         setVerbCode(mRoot, "getContents", ROOT_CONTENTS);
     }
 
@@ -330,7 +341,8 @@ public class GenerateVoice
     private static final String[] ROOM_ENTERFUNC = {
             "function doEnterFunc() {",
                 "var object = args[0];",
-                "if (is_player(object) && (object.location == _this)) {",
+                "if (is_player(object) && (object.location.equals(_this))) {",
+                    "print('ROOM.enterfunc look_self, _player='+_player);",
                     "_player = object;",
                     "_this.look_self();",
                 "}",
@@ -342,7 +354,8 @@ public class GenerateVoice
             "doExitFunc();"};    
     private static final String[] ROOM_LOOK_SELF = {
             "function doLookSelf() {",
-                "_player.tell(_this.title());",
+                "print('ROOM.look_self, _player='+_player);",
+                "_player.tell(_this.getDescription());",
             "}",
             "doLookSelf();"};    
     private static final String[] ROOM_TELL_CONTENTS = {
@@ -479,13 +492,13 @@ public class GenerateVoice
     private void defineEntryRoom() throws MOOException
     {
         mEntryRoom.setOwner(mGod.toRef());
-        MOOPropertyAPI.set_property(mEntryRoom.toRef(), new MOOString("description"), new MOOString("This is an elegant foyeur of white marble."));
+        MOOPropertyAPI.set_property(mEntryRoom.toRef(), new MOOString("description"), new MOOString("<s>This is an elegant foyeur of white marble.</s>"));
     }
 
     private void defineExitRoom() throws MOOException
     {
         mExitRoom.setOwner(mGod.toRef());
-        MOOPropertyAPI.set_property(mExitRoom.toRef(), new MOOString("description"), new MOOString("This is a dark sub-basement made of hard packed earth."));
+        MOOPropertyAPI.set_property(mExitRoom.toRef(), new MOOString("description"), new MOOString("<s>This is a dark sub-basement made of hard packed earth.</s>"));
     }
     
     public void run()

@@ -2,6 +2,7 @@ package com.tsatsatzu.moo.core.logic.script;
 
 import java.util.Collection;
 
+import com.tsatsatzu.moo.core.data.MOOObject;
 import com.tsatsatzu.moo.core.data.MOOValue;
 import com.tsatsatzu.moo.core.data.val.MOOList;
 import com.tsatsatzu.moo.core.data.val.MOONumber;
@@ -9,7 +10,7 @@ import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.data.val.MOOString;
 
 import jo.util.utils.obj.IntegerUtils;
-
+import jo.util.utils.obj.StringUtils;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class CoerceLogic
@@ -59,6 +60,8 @@ public class CoerceLogic
                 return list;
             }
         }
+        if (obj instanceof MOOObject)
+            return new MOOObjRef((MOOObject)obj);
         throw new IllegalArgumentException("Cannot coerce object type "+obj.getClass().getName()+" to value");
     }
     public static MOOObjRef toObjRef(Object obj)
@@ -113,6 +116,23 @@ public class CoerceLogic
             return ((MOOString)val).getValue();
         else if (val instanceof MOOObjRef)
             return new JSObjRef((MOOObjRef)val);
+        throw new IllegalArgumentException("Cannot coerce value "+val.getClass().getName()+" to object");
+    }
+    public static Object toJavascriptBoolean(MOOValue val)
+    {
+        if (val == null)
+            return false;
+        if (val instanceof MOOList)
+        {
+            MOOList list = (MOOList)val;
+            return list.getValue().size() > 0;
+        }
+        else if (val instanceof MOONumber)
+            return ((MOONumber)val).getValue().intValue() != 0;
+        else if (val instanceof MOOString)
+            return !StringUtils.isTrivial(((MOOString)val).getValue());
+        else if (val instanceof MOOObjRef)
+            return ((MOOObjRef)val).getValue() != 0;
         throw new IllegalArgumentException("Cannot coerce value "+val.getClass().getName()+" to object");
     }
 }
