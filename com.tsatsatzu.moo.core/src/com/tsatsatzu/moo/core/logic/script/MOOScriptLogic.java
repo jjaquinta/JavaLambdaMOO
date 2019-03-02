@@ -20,6 +20,7 @@ import com.tsatsatzu.moo.core.data.val.MOOObjRef;
 import com.tsatsatzu.moo.core.data.val.MOOString;
 import com.tsatsatzu.moo.core.logic.MOOProgrammerLogic;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncConvAPI;
+import com.tsatsatzu.moo.core.logic.script.funcs.FuncMatchAPI;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncNetworkAPI;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncObjectAPI;
 import com.tsatsatzu.moo.core.logic.script.funcs.FuncPlayerAPI;
@@ -56,6 +57,7 @@ public class MOOScriptLogic
             FuncConvAPI.register(engine);
             FuncNetworkAPI.register(engine);
             FuncTaskAPI.register(engine);
+            FuncMatchAPI.register(engine);
             mEngines.put(language, engine);
         }
         return mEngines.get(language);
@@ -78,15 +80,18 @@ public class MOOScriptLogic
         {
             MOOStackElement mse = peekScriptStack();
             if (mse == null)
-                throw new MOOException("No player to be found!");
-            if (mse.getContext() != null)
+                player = MOOProgrammerLogic.getProgrammerRef();
+            else
             {
-                Object p = mse.getContext().getAttribute("_player");
-                if (p instanceof JSObjRef)
-                    player = ((JSObjRef)p).getObjRef();
+                if (mse.getContext() != null)
+                {
+                    Object p = mse.getContext().getAttribute("_player");
+                    if (p instanceof JSObjRef)
+                        player = ((JSObjRef)p).getObjRef();
+                }
+                if (player == null)
+                    player = new MOOObjRef(mse.getPlayer());
             }
-            if (player == null)
-                player = new MOOObjRef(mse.getPlayer());
         }
         System.out.println("Executing #"+obj.getOID()+":"+verbName+" as "+player);
         MOOObjRef programmer = obj.getOwner();

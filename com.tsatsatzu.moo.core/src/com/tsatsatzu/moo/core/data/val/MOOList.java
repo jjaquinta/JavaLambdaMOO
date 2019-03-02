@@ -19,6 +19,11 @@ public class MOOList extends MOOValue
     {        
     }
     
+    public MOOList(Object... vals)
+    {        
+        add(vals);
+    }
+    
     // utilities
 
     @SuppressWarnings("unchecked")
@@ -71,19 +76,15 @@ public class MOOList extends MOOValue
         return mValue.get(idx);
     }
     
-    public void add(MOOValue v)
+    public void add(Object... vals)
     {
-        mValue.add(v);
-    }
-    
-    public void add(Number v)
-    {
-        mValue.add(new MOONumber(v));
-    }
-    
-    public void add(String v)
-    {
-        mValue.add(new MOOString(v));
+        for (Object v : vals)
+            if (v instanceof MOOValue)
+                mValue.add((MOOValue)v);
+            else if (v instanceof Number)
+                mValue.add(new MOONumber((Number)v));
+            else if (v instanceof String)
+                mValue.add(new MOOString((String)v));
     }
     
     // getters and setters

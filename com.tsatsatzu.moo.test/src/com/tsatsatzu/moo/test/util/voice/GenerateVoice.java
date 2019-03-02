@@ -206,9 +206,9 @@ public class GenerateVoice
         addGlobalConstant("player_start", mEntryRoom);
         addGlobalConstant("player_class", mPlayer);
         addGlobalConstant("nothing", new MOOObjRef(-1));
-        setVerbCode(mSystem, "do_login_command", DO_LOGIN_COMMAND);
-        setVerbCode(mSystem, "user_disconnected user_client_disconnected", USER_CLIENT_DISCONNECTED);
-        setVerbCode(mSystem, "user_created user_connected", USER_CREATED);
+        addFunctionalVerb(mSystem, "do_login_command", DO_LOGIN_COMMAND);
+        addFunctionalVerb(mSystem, "user_disconnected user_client_disconnected", USER_CLIENT_DISCONNECTED);
+        addFunctionalVerb(mSystem, "user_created user_connected", USER_CREATED);
     }
 
     private static final String[] ROOT_ACCEPT = {
@@ -278,22 +278,62 @@ public class GenerateVoice
                 "return _this.contents;",
             "}",
             "doContents();"};    
+    
+    private static final String[] ROOT_LOOK = {
+            "function doLook() {",
+            "if ((dobjstr == '') && (prepstr == '')) {",
+                "_this.look_self();",
+            "} else if ((prepstr != 'in') && (prepstr != 'on')) {",
+                "if ((dobjstr == '') && (prepstr == 'at')) {",
+                    "dobjstr = iobjstr;",
+                    "iobjstr = '';",
+                "} else {",
+                    "if (prepstr != '') {",
+                        "dobjstr += ' ' + prepstr;",
+                    "}",
+                    "if (iobjstr != '') {",
+                        "dobjstr += ' ' + iobjstr;",
+                    "}",
+                "}",
+                "dobj = _this.match_object(dobjstr);",
+                "if (!$command_utils:object_match_failed(dobj, dobjstr)) {",
+                    "dobj.look_self();",
+                "}",
+            "} else if (iobjstr == '') {",
+                "_player.tell('<s>', verb, ' ', prepstr, ' what?', '</s>');",
+            "} else {",
+                "iobj = _this.match_object(iobjstr);",
+                "if (!$command_utils:object_match_failed(iobj, iobjstr)) {",
+                    "if (dobjstr == '') {",
+                        "iobj.look_self();",
+                    "} else if ((thing = iobj:match(dobjstr)) == $failed_match) {",
+                        "_player.tell('<s>I don't see any \'', dobjstr, '\' ', prepstr, ' ', iobj.name, '.</s>');",
+                    "} else if (thing == $ambiguous_match) {",
+                        "_player.tell('<s>There are several things ', prepstr, ' ', iobj.name, ' one might call \'', dobjstr, '\'.</s>');",
+                    "} else {",
+                        "thing.look_self();",
+                    "}",
+                "}",
+            "}",
+        "}",
+        "doLook();"};    
 
     private void defineRoot() throws MOOException
     {
         mRoot.setOwner(mGod.toRef());
         addProperty(mRoot, "aliases", new MOOList(), "rc");
         addProperty(mRoot, "description", new MOOString(""), "rc");
-        setVerbCode(mRoot, "accept", ROOT_ACCEPT);
-        setVerbCode(mRoot, "acceptable", ROOT_ACCEPTABLE);
-        setVerbCode(mRoot, "announce*_all_but", ROOT_ANNOUNCE);
-        setVerbCode(mRoot, "tell", ROOT_TELL);
-        setVerbCode(mRoot, "tell_lines", ROOT_TELL_LINES);
-        setVerbCode(mRoot, "notify", ROOT_NOTIFY);
-        setVerbCode(mRoot, "look_self", ROOT_LOOK_SELF);
-        setVerbCode(mRoot, "title", ROOT_TITLE);
-        setVerbCode(mRoot, "getDescription", ROOT_DESCRIPTION);
-        setVerbCode(mRoot, "getContents", ROOT_CONTENTS);
+        addFunctionalVerb(mRoot, "accept", ROOT_ACCEPT);
+        addFunctionalVerb(mRoot, "acceptable", ROOT_ACCEPTABLE);
+        addFunctionalVerb(mRoot, "announce*_all_but", ROOT_ANNOUNCE);
+        addFunctionalVerb(mRoot, "tell", ROOT_TELL);
+        addFunctionalVerb(mRoot, "tell_lines", ROOT_TELL_LINES);
+        addFunctionalVerb(mRoot, "notify", ROOT_NOTIFY);
+        addFunctionalVerb(mRoot, "look_self", ROOT_LOOK_SELF);
+        addFunctionalVerb(mRoot, "title", ROOT_TITLE);
+        addFunctionalVerb(mRoot, "getDescription", ROOT_DESCRIPTION);
+        addFunctionalVerb(mRoot, "getContents", ROOT_CONTENTS);
+        addCommandVerb(mRoot, "l*ook", "any", "any", "any", ROOT_LOOK);
     }
 
     private static final String[] ROOM_ACCEPTABLE = {
@@ -406,14 +446,14 @@ public class GenerateVoice
     private void defineRoom() throws MOOException
     {
         mRoom.setOwner(mGod.toRef());
-        setVerbCode(mRoom, "acceptable", ROOM_ACCEPTABLE);
-        setVerbCode(mRoom, "announce", ROOM_ANNOUNCE);
-        setVerbCode(mRoom, "announce_all", ROOM_ANNOUNCE_ALL);
-        setVerbCode(mRoom, "announce_all_but", ROOM_ANNOUNCE_ALL_BUT);
-        setVerbCode(mRoom, "enterfunc", ROOM_ENTERFUNC);
-        setVerbCode(mRoom, "exitfunc", ROOM_EXITFUNC);
-        setVerbCode(mRoom, "look_self", ROOM_LOOK_SELF);
-        setVerbCode(mRoom, "tell_contents", ROOM_TELL_CONTENTS);
+        addFunctionalVerb(mRoom, "acceptable", ROOM_ACCEPTABLE);
+        addFunctionalVerb(mRoom, "announce", ROOM_ANNOUNCE);
+        addFunctionalVerb(mRoom, "announce_all", ROOM_ANNOUNCE_ALL);
+        addFunctionalVerb(mRoom, "announce_all_but", ROOM_ANNOUNCE_ALL_BUT);
+        addFunctionalVerb(mRoom, "enterfunc", ROOM_ENTERFUNC);
+        addFunctionalVerb(mRoom, "exitfunc", ROOM_EXITFUNC);
+        addFunctionalVerb(mRoom, "look_self", ROOM_LOOK_SELF);
+        addFunctionalVerb(mRoom, "tell_contents", ROOM_TELL_CONTENTS);
     }
 
     private void defineThing() throws MOOException
@@ -439,8 +479,8 @@ public class GenerateVoice
     {
         mContainer.setOwner(mGod.toRef());
         addProperty(mContainer, "dark", MOONumber.FALSE, "rwc");
-        setVerbCode(mContainer, "acceptable", CONTAINER_ACCEPTABLE);
-        setVerbCode(mContainer, "look_self", CONTAINER_LOOK_SELF);
+        addFunctionalVerb(mContainer, "acceptable", CONTAINER_ACCEPTABLE);
+        addFunctionalVerb(mContainer, "look_self", CONTAINER_LOOK_SELF);
     }
 
     private static final String[] PLAYER_ACCEPTABLE = {
@@ -469,8 +509,8 @@ public class GenerateVoice
     {
         mPlayer.setOwner(mGod.toRef());
         addProperty(mPlayer, "last_disconnect_time", new MOONumber(0), "rwc");
-        setVerbCode(mPlayer, "acceptable", PLAYER_ACCEPTABLE);
-        setVerbCode(mPlayer, "look_self", PLAYER_LOOK_SELF);
+        addFunctionalVerb(mPlayer, "acceptable", PLAYER_ACCEPTABLE);
+        addFunctionalVerb(mPlayer, "look_self", PLAYER_LOOK_SELF);
     }
 
     private void defineProgrammer() throws MOOException
@@ -542,7 +582,12 @@ public class GenerateVoice
         return false;
     }
 
-    private static void setVerbCode(MOOObject obj, String name, String... code) throws MOOException
+    private static void addFunctionalVerb(MOOObject obj, String name, String... code) throws MOOException
+    {
+        addCommandVerb(obj, name, "this", "none", "this", code);
+    }
+
+    private static void addCommandVerb(MOOObject obj, String name, String dobj, String prep, String iobj, String... code) throws MOOException
     {
         if (!hasDefinedVerb(obj, name))
         {
@@ -551,9 +596,9 @@ public class GenerateVoice
             info.add("rx");
             info.add(name);
             MOOList args = new MOOList();
-            args.add("this");
-            args.add("none");
-            args.add("this");
+            args.add(dobj);
+            args.add(prep);
+            args.add(iobj);
             MOOVerbAPI.add_verb(obj.toRef(), info, args);
         }
         MOOVerbAPI.set_verb_code(obj.toRef(), new MOOString(name), makeList(code));

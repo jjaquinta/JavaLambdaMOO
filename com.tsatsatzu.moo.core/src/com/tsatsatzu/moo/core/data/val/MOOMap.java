@@ -64,6 +64,11 @@ public class MOOMap extends MOOValue
         return sb.toString();
     }
     
+    public MOOValue get(String key)
+    {
+        return getValue().get(key);
+    }
+    
     // getters and setters
 
     public Map<String, MOOValue> getValue()

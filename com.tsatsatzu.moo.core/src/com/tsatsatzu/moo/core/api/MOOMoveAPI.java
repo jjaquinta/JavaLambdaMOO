@@ -51,28 +51,28 @@ public class MOOMoveAPI
     {
         MOOObject what = MOODbLogic.get(whatRef);
         if (what == null)
-            throw new MOOException("Invalid what="+whatRef);
+            throw new MOOException("E_INVARG Invalid what="+whatRef);
         MOOObject where = MOODbLogic.get(whereRef);
         System.out.println("Moving "+whatRef+" from "+what.getLocation()+" to "+whereRef+" as "+MOOProgrammerLogic.getProgrammerRef());
         MOOObject programmer = MOOProgrammerLogic.getProgrammer();
         if (!programmer.isWizard() && !what.getOwner().equals(programmer))
-            throw new MOOException("You are not allowed to move ="+whatRef);
+            throw new MOOException("E_PERM You are not allowed to move ="+whatRef);
     
         if (where.hasVerb("accept"))
         {
             System.out.println("Calling accept");
             MOOValue val = MOOScriptLogic.executeScript((MOOObjRef)null, where, "accept", whatRef);
             if ((val instanceof MOONumber) && !((MOONumber)val).toBoolean() && !programmer.isWizard())
-                throw new MOOException("Destination refuses move");
+                throw new MOOException("E_NACC Destination refuses move");
         }
         else
-            throw new MOOException("Destination refuses move");
+            throw new MOOException("E_NACC Destination refuses move");
         
         // check containment
         for (int cont = whereRef.getValue(); cont != -1; cont = MOODbLogic.get(cont).getLocation().getValue())
         {
             if (cont == whatRef.getValue())
-                throw new MOOException("Move would cause containment loop");
+                throw new MOOException("E_RECMOVE Move would cause containment loop");
         }
         
         if (!what.getLocation().isNone())
