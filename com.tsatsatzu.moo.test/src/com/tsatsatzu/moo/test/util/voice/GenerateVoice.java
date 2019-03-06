@@ -30,6 +30,9 @@ public class GenerateVoice
     private MOOObject mGod;
     private MOOObject mEntryRoom;
     private MOOObject mExitRoom;
+    // utils
+    private MOOObject mStringUtils;
+    private MOOObject mListUtils;
     
     private void setup() throws InterruptedException
     {
@@ -76,6 +79,9 @@ public class GenerateVoice
         mWizard = MOODbLogic.newInstance(-1);
         mEntryRoom = MOODbLogic.newInstance(mRoom.getOID());
         mExitRoom = MOODbLogic.newInstance(mRoom.getOID());
+        // create utils
+        mStringUtils = MOODbLogic.newInstance(-1);
+        mListUtils = MOODbLogic.newInstance(-1);
         // system details
         mSystem.setName("System Object");
         // root
@@ -113,6 +119,12 @@ public class GenerateVoice
         // exit
         mExitRoom.setName("Exit");
         addGlobalConstant("limbo", mExitRoom);
+        // string utils
+        mStringUtils.setName("string_utils");
+        addGlobalConstant("string_utils", mStringUtils);
+        // list utils
+        mListUtils.setName("list_utils");
+        addGlobalConstant("list_utils", mListUtils);
     }
 
     private static final String[] DO_LOGIN_COMMAND = {
@@ -540,6 +552,110 @@ public class GenerateVoice
         mExitRoom.setOwner(mGod.toRef());
         MOOPropertyAPI.set_property(mExitRoom.toRef(), new MOOString("description"), new MOOString("<s>This is a dark sub-basement made of hard packed earth.</s>"));
     }
+
+    private static final String[] STRING_UTILS_TITLE_LIST = {
+            "function doTitleList() {",
+                "//wr_utils:title_list/title_listc(<obj-list>[, @<args>)",
+                "//Creates an english list out of the titles of the objects in <obj-list>.  Optional <args> are passed on to $string_utils:english_list.",
+                "//title_listc uses :titlec() for the first item.",
+                "var titles = $list_utils.map_verb(args[0], 'title');",
+                "if (verb.endsWith('c')) {",
+                    "if (titles.length > 0) {",
+                        "titles[0] = args[0][0].titlec();",
+                    "} else if (args.length > 1) {",
+                        "args[1] = $string_utils.capitalize(args[1]);",
+                    "} else {",
+                        "args.append('Nothing');",
+                    "}",
+                "}",
+                "return $string_utils:english_list(titles, args[1]);",
+            "}",
+            "doTitleList();"};    
+
+    private static final String[] STRING_UTILS_CAPITALIZE = {
+            "function doCapitalize() {",
+                "// capitalizes its argument.",
+                "if (args.length > 0) {",
+                    "var str = args[0];",
+                    "var i = \"abcdefghijklmnopqrstuvwxyz\".indexOf(str.substring(0, 1));",
+                    "str = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\".substring(i, i+1) + str.substring(1);",
+                    "return str;",
+                "}",
+                "return '';",
+            "}",
+            "doCapitalize();"};    
+
+    private static final String[] STRING_UTILS_ENGLISH_LIST = {
+            "function doEnglishList() {",
+                "// Prints the argument (must be a list) as an english list, e.g. {1, 2, 3} is printed as \"1, 2, and 3\", and {1, 2} is printed as \"1 and 2\".",
+                "// Optional arguments are treated as follows:",
+                "//   Second argument is the string to use when the empty list is given.  The default is \"nothing\".",
+                "//   Third argument is the string to use in place of \" and \".  A typical application might be to use \" or \" instead.",
+                "//   Fourth argument is the string to use instead of a comma (and space).  Gary_Severn's deranged mind actually came up with an application for this.  You can ask him.",
+                "//   Fifth argument is a string to use after the penultimate element before the \" and \".  The default is to have a comma without a space.",
+                "{things, ?nothingstr = 'nothing', ?andstr = ' and ', ?commastr = ', ', ?finalcommastr = ','} = args;",
+                "var things = args[0];",
+                "var nothingstr = 'nothing';",
+                "if (args.legnth > 1) nothingstr = args[1];",
+                "var andstr = ' and ';",
+                "if (args.legnth > 2) andstr = args[2];",
+                "var commastr = ', ';",
+                "if (args.legnth > 3) commastr = args[3];",
+                "var finalcommastr = ',';",
+                "if (args.legnth > 4) finalcommastr = args[4];",
+                "var nthings = things.length;",
+                "if (nthings == 0) {",
+                    "return nothingstr;",
+                "} else if (nthings == 1) {",
+                    "return tostr(things[0]);",
+                "} else if (nthings == 2) {",
+                    "return tostr(things[0], andstr, things[1]);",
+                "} else {",
+                    "ret = '';",
+                    "for (var k = 0; k < nthings; k++) {",
+                        "if (k == (nthings - 1)) {",
+                            "commastr = finalcommastr;",
+                        "}",
+                        "ret = tostr(ret, things[k], commastr);",
+                    "}",
+                    "return tostr(ret, andstr, things[nthings]);",
+                "}",
+            "}",
+            "doEnglishList();"};    
+    
+    private void defineStringUtils() throws MOOException
+    {
+        mStringUtils.setOwner(mGod.toRef());
+        addProperty(mStringUtils, "alphabet", "abcdefghijklmnopqrstuvwxyz", "rc");
+        addProperty(mStringUtils, "tab", "   ", "rc");
+        addProperty(mStringUtils, "digits", "0123456789", "rc");
+        addProperty(mStringUtils, "ascii", " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", "rc");
+        addFunctionalVerb(mPlayer, "title_list*c", STRING_UTILS_TITLE_LIST);
+        addFunctionalVerb(mPlayer, "capitalize capitalise", STRING_UTILS_CAPITALIZE);
+        addFunctionalVerb(mPlayer, "english_list", STRING_UTILS_ENGLISH_LIST);
+    }
+
+    private static final String[] LIST_UTILS_MAP_VERB = {
+            "function doMapVerb() {",
+                "set_task_perms(caller_perms());",
+                "var objs = args[0];",
+                "var vrb = args[1];",
+                "var rest = args.slice(2);",
+                "var strs = [];",
+                "for (var i = 0; i < objs.length; i++) {",
+                    "o = objs[i];",
+                    "strs.append(o[vrb].apply(o[vrb], rest));",
+                "}",
+                "return strs;",
+            "}",
+            "doMapVerb();"};    
+
+    
+    private void defineListUtils() throws MOOException
+    {
+        mListUtils.setOwner(mGod.toRef());
+        addFunctionalVerb(mPlayer, "map_verb", LIST_UTILS_MAP_VERB);
+    }
     
     public void run()
     {
@@ -558,6 +674,9 @@ public class GenerateVoice
             defineGod();
             defineEntryRoom();
             defineExitRoom();
+            // utils
+            defineStringUtils();
+            defineListUtils();
             setdown();
         }
         catch (Exception e)
@@ -566,11 +685,20 @@ public class GenerateVoice
         }
     }
 
-    private static void addProperty(MOOObject obj, String name, MOOValue value, String perms) throws MOOException
+    private static void addProperty(MOOObject obj, String name, Object v, String perms) throws MOOException
     {
         MOOList info = new MOOList();
         info.add(obj.getOwner());
         info.add(perms);
+        MOOValue value;
+        if (v instanceof MOOValue)
+            value = (MOOValue)v;
+        else if (v instanceof String)
+            value = new MOOString((String)v);
+        else if (v instanceof Number)
+            value = new MOONumber((Number)v);
+        else
+            throw new IllegalStateException("Unknown value '"+v.getClass().getName()+"'");
         MOOPropertyAPI.add_property(obj.toRef(), new MOOString(name), value, info);
     }
     
